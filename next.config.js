@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
 
-  /* Remote images – keep this */
   images: {
     remotePatterns: [
       {
@@ -16,6 +17,11 @@ const nextConfig = {
         pathname: '/t/p/**'
       }
     ]
+  },
+
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.resolve(__dirname);
+    return config;
   }
 };
 

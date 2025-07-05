@@ -1,4 +1,3 @@
-/* app/movies/watchlist/page.tsx – FULL FILE */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -63,7 +62,7 @@ export default function WatchlistPage() {
           .order('id', { ascending: false });
 
         if (error) throw error;
-        setWatchlist(data as WatchlistRow[]);
+        setWatchlist(data as unknown as WatchlistRow[]);
       } catch (err: any) {
         setError(err.message);
       } finally {

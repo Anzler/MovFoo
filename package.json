@@ -1,7 +1,7 @@
 {
   "name": "movfoo-frontend",
   "version": "1.0.0",
-  "description": "MovFoo – Dinner‑and‑a‑Movie front‑end (Next.js 13, Tailwind CSS, Supabase)",
+  "description": "MovFoo front‑end (Next.js 13, Tailwind, Supabase)",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -11,10 +11,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-react": "0.2.6",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.42.4",
-    "next": "13.5.6",
+    "next": "^15.3.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -23,7 +23,7 @@
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.7",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.49.0",
+    "eslint": "^8.57.1",
     "eslint-config-next": "13.5.6",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.1",
@@ -31,8 +31,5 @@
   },
   "engines": {
     "node": ">=18.14.0"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
   }
 }
