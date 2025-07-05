@@ -1,7 +1,7 @@
 {
   "name": "movfoo-frontend",
   "version": "1.0.0",
-  "description": "MovFoo front‑end (Next .js 15 App Router · Tailwind CSS · Supabase)",
+  "description": "MovFoo front‑end (Next.js 15 App Router · Tailwind CSS · Supabase)",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -33,3 +33,4 @@
     "node": ">=18.14.0"
   }
 }
+
