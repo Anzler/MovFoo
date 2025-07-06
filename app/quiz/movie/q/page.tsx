@@ -1,91 +1,59 @@
 "use client";
-import useSWR from "swr";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
-const QUESTIONS: Record<
-  string,
-  { prompt: string; options: string[]; key: string }
-> = {
-  genre: {
-    prompt: "Which genre suits your mood?",
-    options: ["Action", "Comedy", "Drama", "Horror", "Romance", "Thriller", "Any"],
+import { useParams } from "next/navigation";
+import QuizEngine from "@/components/quiz/QuizEngine";
+
+const movieQuestions = [
+  {
     key: "genre",
+    prompt: "What genre are you in the mood for?",
+    options: ["Action", "Comedy", "Drama", "Horror", "Romance"],
   },
-  year: {
-    prompt: "Earliest release year you’ll accept?",
-    options: ["2020", "2010", "2000", "1990", "Any"],
-    key: "year_min",
+  {
+    key: "special_category",
+    prompt: "Do you want something new or a classic?",
+    options: ["new_release", "classic"],
   },
-};
+  {
+    key: "audience",
+    prompt: "Who are you watching with?",
+    options: ["Any", "Kids", "Adults"],
+  },
+  {
+    key: "rating_min",
+    prompt: "Minimum rating (1–10)?",
+    options: ["5", "6", "7", "8", "9"],
+  }
+];
 
-const fetcher = (url: string, body: unknown) =>
-  fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then((r) => r.json());
+export default function MovieQuizStep() {
+  const params = useParams();
+  const slug = typeof params.slug === "string" ? params.slug : Array.isArray(params.slug) ? params.slug[0] : "";
 
-export default function Question({ params }: { params: { slug: string } }) {
-  const { slug } = params;
-  const question = QUESTIONS[slug];
-  const router = useRouter();
-  const search = useSearchParams();
-  const [busy, setBusy] = useState(false);
-
-  if (!question) return <p>Unknown question.</p>;
-
-  const sessionId = search.get("s") ?? undefined;
-  const userId = "anon-user"; // swap for Supabase auth when ready
-
-  async function answer(value: string) {
-    setBusy(true);
-
-    const data = await fetcher(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/quiz/watch/answer`,
-      {
-        sessionId,
-        userId,
-        questionKey: question.key,
-        answerValue: value,
-      }
-    );
-
-    const nextSlug = next(slug);
-    router.replace(
-      nextSlug ? `/quiz/q/${nextSlug}?s=${data.sessionId}` : `/quiz/results?s=${data.sessionId}`
+  const stepIndex = movieQuestions.findIndex((q) => q.key === slug);
+  if (stepIndex === -1) {
+    return (
+      <div className="text-center mt-20">
+        <h2 className="text-xl font-semibold text-red-600">Invalid quiz step: “{slug}”</h2>
+        <p className="text-gray-500">Please return to the quiz start page.</p>
+      </div>
     );
   }
 
+  const step = movieQuestions[stepIndex];
+
   return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-semibold">{question.prompt}</h2>
-
-      {question.options.map((opt) => (
-        <button
-          key={opt}
-          onClick={() => answer(opt)}
-          className="block w-full py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
-          disabled={busy}
-        >
-          {opt}
-        </button>
-      ))}
-
-      <button
-        onClick={() => router.push(`/quiz/results?s=${sessionId ?? ""}`)}
-        className="mt-4 text-sm underline text-orange-600"
-      >
-        🎲 Surprise Me
-      </button>
-    </section>
+    <div className="max-w-xl mx-auto px-4 py-12">
+      <QuizEngine
+        quizType="movie"
+        questions={[step]}
+        autoAdvanceToNextSlug={
+          stepIndex + 1 < movieQuestions.length
+            ? `/quiz/movie/q/${movieQuestions[stepIndex + 1].key}`
+            : `/quiz/movie/results`
+        }
+      />
+    </div>
   );
-}
-
-/* helpers */
-function next(current: string) {
-  const keys = Object.keys(QUESTIONS);
-  const i = keys.indexOf(current);
-  return i >= 0 && i < keys.length - 1 ? keys[i + 1] : undefined;
 }
 
