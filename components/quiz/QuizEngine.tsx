@@ -1,9 +1,8 @@
-// components/quiz/QuizEngine.tsx
-
 "use client";
 
 import React, { useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 type Question = {
   key: string;
@@ -11,32 +10,37 @@ type Question = {
   options: string[];
 };
 
-type Props = {
-  quizType: "movie" | "food";
-  questions: Question[];
-};
-
 type ResultItem = {
   title: string;
   synopsis?: string;
   poster_url?: string;
   rating?: number;
+  name?: string; // for recipes
+  prep_time?: string;
+  description?: string;
 };
 
-export default function QuizEngine({ quizType, questions }: Props) {
+type Props = {
+  quizType: "movie" | "food" | "pairing";
+  questions: Question[];
+  autoAdvanceToNextSlug?: string;
+};
+
+export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug }: Props) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [results, setResults] = useState<ResultItem[] | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
   const current = questions[step];
 
   const handleAnswer = async (value: string) => {
     const nextAnswers = { ...answers, [current.key]: value };
     setAnswers(nextAnswers);
-
     setLoading(true);
+
     try {
       const res = await axios.post(`/v1/quiz/${quizType}/submit`, {
         sessionId,
@@ -45,6 +49,11 @@ export default function QuizEngine({ quizType, questions }: Props) {
       });
 
       setSessionId(res.data.sessionId);
+
+      if (autoAdvanceToNextSlug) {
+        router.push(autoAdvanceToNextSlug);
+        return;
+      }
 
       if (step + 1 < questions.length) {
         setStep((s) => s + 1);
@@ -66,12 +75,25 @@ export default function QuizEngine({ quizType, questions }: Props) {
           {results.map((item, i) => (
             <div key={i} className="p-4 border rounded-lg shadow">
               {item.poster_url && (
-                <img src={item.poster_url} alt={item.title} className="w-full h-auto rounded" />
+                <img src={item.poster_url} alt={item.title || item.name} className="w-full h-auto rounded" />
               )}
-              <h3 className="text-lg font-semibold mt-2">{item.title}</h3>
-              {item.synopsis && <p className="text-sm text-gray-600">{item.synopsis}</p>}
+              <h3 className="text-lg font-semibold mt-2">
+                {item.title || item.name}
+              </h3>
+              {(item.synopsis || item.description) && (
+                <p className="text-sm text-gray-600">
+                  {item.synopsis || item.description}
+                </p>
+              )}
               {item.rating && (
-                <p className="text-xs text-yellow-600 mt-1">Rating: {item.rating}/10</p>
+                <p className="text-xs text-yellow-600 mt-1">
+                  ⭐ Rating: {item.rating}/10
+                </p>
+              )}
+              {item.prep_time && (
+                <p className="text-xs text-teal-600 mt-1">
+                  ⏱️ Prep Time: {item.prep_time}
+                </p>
               )}
             </div>
           ))}
