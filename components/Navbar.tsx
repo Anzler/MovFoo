@@ -1,17 +1,35 @@
 'use client';
+
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function Navbar() {
   const [email, setEmail] = useState<string | null>(null);
+  const [apiHealthy, setApiHealthy] = useState<boolean | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
-    const { data: { subscription } } =
-      supabase.auth.onAuthStateChange((_event, session) => {
-        setEmail(session?.user?.email ?? null);
-      });
+    // Get user session
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setEmail(session?.user?.email ?? null);
+    });
+
+    // Ping backend for health check
+    const pingBackend = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/`);
+        setApiHealthy(res.ok);
+      } catch {
+        setApiHealthy(false);
+      }
+    };
+
+    pingBackend();
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -44,6 +62,17 @@ export default function Navbar() {
               </Link>
             </li>
           )}
+          <li title="Backend API status">
+            <span
+              className={`inline-block w-2 h-2 rounded-full ${
+                apiHealthy === null
+                  ? 'bg-gray-300'
+                  : apiHealthy
+                  ? 'bg-green-500'
+                  : 'bg-red-500'
+              }`}
+            ></span>
+          </li>
         </ul>
       </nav>
     </header>
