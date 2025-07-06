@@ -23,15 +23,13 @@ export default function PairingSurprisePage() {
         let sessionId: string | null = null;
 
         for (const answer of defaultAnswers) {
-          const res = await fetch("/v1/quiz/pairing/submit", {
+          const res: Response = await fetch("/v1/quiz/pairing/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ...answer, sessionId }),
           });
 
-          if (!res.ok) throw new Error("Failed to submit surprise answer");
-
-          const data = await res.json();
+          const data: { sessionId: string } = await res.json();
           sessionId = data.sessionId;
         }
 
