@@ -18,7 +18,7 @@ import { supabase } from './db.js';
 const helmet = (await import('helmet')).default;
 
 // Routers
-import watchlistRouter from './routes/v1/watchlist.js';
+import watchlistRouter from './routes/v1/watchlist.ts';
 import pairingRouter from './routes/v1/quiz/pairing.js';
 import foodQuizRouter from './routes/v1/quiz/food.js';
 import movieQuizRouter from './routes/v1/quiz/movie.js';
