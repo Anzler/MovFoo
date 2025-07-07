@@ -6,7 +6,13 @@ import MovieQuizResults from './ResultsInner';
 
 export default function ResultsPageWrapper() {
   return (
-    <Suspense fallback={<div className="text-center mt-20 text-gray-500">Loading results…</div>}>
+    <Suspense
+      fallback={
+        <div className="text-center mt-20 text-gray-500">
+          Loading results…
+        </div>
+      }
+    >
       <MovieQuizResults />
     </Suspense>
   );
