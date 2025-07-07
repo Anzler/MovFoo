@@ -9,17 +9,20 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import helmet from 'helmet/dist/index.js'; // ✅ ESM-compatible import
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { supabase } from './db.js';
+
+// Dynamic import for ESM compatibility
+const helmet = (await import('helmet')).default;
 
 // Routers
 import watchlistRouter from './routes/v1/watchlist.js';
 import pairingRouter from './routes/v1/quiz/pairing.js';
 import foodQuizRouter from './routes/v1/quiz/food.js';
 import movieQuizRouter from './routes/v1/quiz/movie.js';
+
 
 dotenv.config();
 
