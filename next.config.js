@@ -21,6 +21,13 @@ const nextConfig = {
 
   webpack: (config) => {
     config.resolve.alias['@'] = path.resolve(__dirname);
+
+    // Prevent backend folder from being included in Next.js build
+    config.module.rules.push({
+      test: /backend/,
+      use: 'null-loader'
+    });
+
     return config;
   }
 };
