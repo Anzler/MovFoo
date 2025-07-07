@@ -6,20 +6,20 @@
  * filtering via content_view and recipe_view.
  ******************************************************************************/
 
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const helmet = require('helmet');
-const { z } = require('zod');
-const { v4: uuidv4 } = require('uuid');
-const axios = require('axios');
-const { supabase } = require('./db.js');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import helmet from 'helmet';
+import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
+import { supabase } from './db.js';
 
 // Routers
-const watchlistRouter = require('./routes/v1/watchlist.js');
-const pairingRouter = require('./routes/v1/quiz/pairing.js');
-const foodQuizRouter = require('./routes/v1/quiz/food.js');
-const movieQuizRouter = require('./routes/v1/quiz/movie.js'); // ✅ ADDED
+import watchlistRouter from './routes/v1/watchlist.js';
+import pairingRouter from './routes/v1/quiz/pairing.js';
+import foodQuizRouter from './routes/v1/quiz/food.js';
+import movieQuizRouter from './routes/v1/quiz/movie.js';
 
 dotenv.config();
 
@@ -56,7 +56,7 @@ app.get('/health', (_, res) =>
 app.use("/v1/watchlist", watchlistRouter);
 app.use("/v1/quiz/pairing", pairingRouter);
 app.use("/v1/quiz/food", foodQuizRouter);
-app.use("/v1/quiz/movie", movieQuizRouter); // ✅ ADDED
+app.use("/v1/quiz/movie", movieQuizRouter);
 
 /* ── Start server ─────────────────────────────────────────────────────── */
 app.listen(PORT, () => {
