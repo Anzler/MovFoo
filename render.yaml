@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: MovFoo
+    env: node
+    region: oregon
+    plan: starter
+    branch: master
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: SUPABASE_URL
+        fromEnvVar: SUPABASE_URL
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        fromEnvVar: SUPABASE_SERVICE_ROLE_KEY
+      - key: TMDB_API_KEY
+        fromEnvVar: TMDB_API_KEY
+
