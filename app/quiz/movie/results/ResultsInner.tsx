@@ -1,7 +1,8 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type ResultItem = {
   id: string;
@@ -17,7 +18,7 @@ export default function MovieQuizResults() {
   const sessionId = searchParams.get('s');
 
   const [results, setResults] = useState<ResultItem[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function MovieQuizResults() {
         const data = await res.json();
         setResults(data.results || []);
       } catch (err) {
+        console.error(err);
         setError('Could not fetch results. Please try again.');
       } finally {
         setLoading(false);
@@ -52,9 +54,7 @@ export default function MovieQuizResults() {
   }
 
   if (error) {
-    return (
-      <div className="text-center mt-20 text-red-600">{error}</div>
-    );
+    return <div className="text-center mt-20 text-red-600">{error}</div>;
   }
 
   if (!results || results.length === 0) {
@@ -90,7 +90,7 @@ export default function MovieQuizResults() {
               {item.synopsis && (
                 <p className="text-sm text-gray-600 line-clamp-3">{item.synopsis}</p>
               )}
-              {item.rating && (
+              {item.rating != null && (
                 <p className="text-xs text-yellow-700 mt-2">
                   ⭐ Rating: {item.rating}/10
                 </p>
