@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import { Suspense } from 'react';
-import MovieQuizResults from '../../../../components/quiz/ResultsInner';
+import MovieQuizResults from './ResultsInner';
 
 export default function ResultsPageWrapper() {
   return (
