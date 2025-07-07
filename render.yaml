@@ -4,10 +4,10 @@ services:
     env: node
     region: oregon
     plan: starter
-    branch: master
+    branch: main       # or master, whichever your default is
+    rootDir: backend   # IMPORTANT: tells Render to run inside backend/
     buildCommand: npm install
     startCommand: npm start
-    rootDir: backend
     envVars:
       - key: SUPABASE_URL
         fromEnvVar: SUPABASE_URL
