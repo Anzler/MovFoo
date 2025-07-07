@@ -1,8 +1,8 @@
-'use client';
-export const dynamic = 'force-dynamic';
+"use client";
+export const dynamic = "force-dynamic";
 
-import { Suspense } from 'react';
-import MovieQuizResults from './ResultsInner';
+import { Suspense } from "react";
+import MovieQuizResults from "../../../components/quiz/ResultsInner";
 
 export default function ResultsPageWrapper() {
   return (
