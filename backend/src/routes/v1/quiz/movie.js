@@ -23,7 +23,7 @@ router.post("/submit", async (req, res) => {
   const { genre, type, releaseWindow } = parsed.data;
 
   try {
-    const genreMap: Record<string, number> = {
+    const genreMap = {
       Action: 28,
       Comedy: 35,
       Drama: 18,
