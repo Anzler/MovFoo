@@ -4,14 +4,15 @@ import axios from "axios";
 
 const router = express.Router();
 
-// 1. Define input schema
+// Input schema for quiz submission
 const QuizInput = z.object({
-  genre: z.string(),          // e.g. "Action"
+  genre: z.string(), // e.g., "Action"
   type: z.enum(["movie", "tv"]),
   releaseWindow: z.enum(["new", "classic"]),
-  platforms: z.array(z.string()).optional(), // For future use
+  platforms: z.array(z.string()).optional(), // Reserved for future use
 });
 
+// POST /v1/quiz/movie/submit
 router.post("/submit", async (req, res) => {
   const parsed = QuizInput.safeParse(req.body);
 
@@ -22,13 +23,12 @@ router.post("/submit", async (req, res) => {
   const { genre, type, releaseWindow } = parsed.data;
 
   try {
-    // 2. Build TMDB query
     const genreMap: Record<string, number> = {
       Action: 28,
       Comedy: 35,
       Drama: 18,
       Horror: 27,
-      // Add more as needed
+      // Extend as needed
     };
 
     const genreId = genreMap[genre];
@@ -45,11 +45,47 @@ router.post("/submit", async (req, res) => {
       },
     });
 
-    const results = response.data.results.slice(0, 3); // Return top 3
+    const results = response.data.results.slice(0, 3);
     res.status(200).json({ results });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch from TMDB" });
+  }
+});
+
+// GET /v1/quiz/movie/results?s=sessionId
+router.get("/results", async (req, res) => {
+  const sessionId = req.query.s as string;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: "Missing session ID" });
+  }
+
+  try {
+    // Replace with real logic to look up quiz results from your DB or session
+    const mockResults = [
+      {
+        id: "1",
+        title: "Inception",
+        synopsis: "A thief who steals corporate secrets...",
+        poster_url: "https://image.tmdb.org/t/p/w500/xyz.jpg",
+        rating: 8.8,
+        source: "Netflix",
+      },
+      {
+        id: "2",
+        title: "The Dark Knight",
+        synopsis: "Batman raises the stakes...",
+        poster_url: "https://image.tmdb.org/t/p/w500/abc.jpg",
+        rating: 9.0,
+        source: "HBO Max",
+      },
+    ];
+
+    res.status(200).json({ results: mockResults });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve quiz results" });
   }
 });
 
