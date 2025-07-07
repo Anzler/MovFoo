@@ -7,8 +7,8 @@ import { supabase } from '@/lib/supabaseClient';
 interface WatchlistRow {
   id: number;
   title: string;
-  poster_url: string | null;
-  platform: string | null;
+  service: string | null;
+  type: string;
 }
 
 export default function WatchlistPage() {
@@ -23,8 +23,8 @@ export default function WatchlistPage() {
       setUser(data.user);
     });
     const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_e, session) =>
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) =>
       setUser(session?.user ?? null)
     );
     return () => subscription.unsubscribe();
@@ -42,7 +42,7 @@ export default function WatchlistPage() {
         setLoading(true);
         const { data, error } = await supabase
           .from('watchlist')
-          .select('id, title, poster_url, platform')
+          .select('id, title, service, type')
           .eq('user_id', user.id)
           .order('id', { ascending: false });
 
@@ -71,9 +71,7 @@ export default function WatchlistPage() {
 
   if (loading) return <p className="p-6">Loading…</p>;
   if (error)
-    return (
-      <p className="p-6 text-red-600">Error loading watchlist: {error}</p>
-    );
+    return <p className="p-6 text-red-600">Error loading watchlist: {error}</p>;
   if (watchlist.length === 0)
     return (
       <p className="p-6">
@@ -83,28 +81,16 @@ export default function WatchlistPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Currently Watching</h1>
+      <h1 className="text-2xl font-bold mb-6">Your Watchlist</h1>
       <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {watchlist.map((item) => (
-          <div key={item.id} className="bg-white rounded shadow flex flex-col">
-            {item.poster_url ? (
-              <img
-                src={item.poster_url}
-                alt={item.title}
-                className="w-full h-48 object-cover"
-              />
-            ) : (
-              <div className="w-full h-48 flex items-center justify-center bg-gray-200 text-sm">
-                No Image
-              </div>
-            )}
-            <div className="flex-1 p-3 flex flex-col">
-              <span className="font-medium text-sm">{item.title}</span>
-              {item.platform && (
-                <span className="text-xs text-gray-600 mt-1">
-                  📺 {item.platform}
-                </span>
-              )}
+          <div
+            key={item.id}
+            className="bg-white rounded shadow p-4 flex flex-col justify-between"
+          >
+            <div className="text-sm font-medium">{item.title}</div>
+            <div className="text-xs text-gray-600 mt-2">
+              {item.service ? `📺 ${item.service}` : '—'}
             </div>
           </div>
         ))}
