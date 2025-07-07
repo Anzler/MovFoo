@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type ResultItem = {
   id: string;
@@ -14,7 +14,7 @@ type ResultItem = {
 
 export default function MovieQuizResults() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("s");
+  const sessionId = searchParams.get('s');
 
   const [results, setResults] = useState<ResultItem[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -22,7 +22,7 @@ export default function MovieQuizResults() {
 
   useEffect(() => {
     if (!sessionId) {
-      setError("Missing session ID.");
+      setError('Missing session ID.');
       setLoading(false);
       return;
     }
@@ -30,11 +30,11 @@ export default function MovieQuizResults() {
     const fetchResults = async () => {
       try {
         const res = await fetch(`/v1/quiz/movie/results?s=${sessionId}`);
-        if (!res.ok) throw new Error("Failed to load results");
+        if (!res.ok) throw new Error('Failed to load results');
         const data = await res.json();
         setResults(data.results || []);
       } catch (err) {
-        setError("Could not fetch results. Please try again.");
+        setError('Could not fetch results. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -53,29 +53,37 @@ export default function MovieQuizResults() {
 
   if (error) {
     return (
-      <div className="text-center mt-20 text-red-600">
-        {error}
+      <div className="text-center mt-20 text-red-600">{error}</div>
+    );
+  }
+
+  if (!results || results.length === 0) {
+    return (
+      <div className="text-center mt-20 text-gray-600">
+        No results found. Try answering more questions or hitting “Surprise Me.”
       </div>
     );
   }
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6 text-center">
-        🎬 Your Movie Picks
-      </h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">🎬 Your Movie Picks</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {results?.map((item) => (
+        {results.map((item) => (
           <div
             key={item.id}
             className="rounded-lg overflow-hidden border bg-white shadow hover:shadow-lg transition"
           >
-            {item.poster_url && (
+            {item.poster_url ? (
               <img
                 src={item.poster_url}
                 alt={item.title}
                 className="w-full h-60 object-cover"
               />
+            ) : (
+              <div className="w-full h-60 flex items-center justify-center bg-gray-200 text-sm">
+                No Image
+              </div>
             )}
             <div className="p-4">
               <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
