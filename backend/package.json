@@ -1,7 +1,6 @@
 {
   "name": "movfoo-backend",
   "version": "1.1.0",
-  "type": "module",
   "description": "Backend API for MovFoo — Express service deployed on Render.com",
   "main": "src/index.js",
   "scripts": {
@@ -25,7 +24,8 @@
     "@supabase/supabase-js": "^2.50.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"

@@ -6,20 +6,20 @@
  * filtering via content_view and recipe_view.
  ******************************************************************************/
 
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
-import { supabase } from './db.js';
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const helmet = require('helmet');
+const { z } = require('zod');
+const { v4: uuidv4 } = require('uuid');
+const axios = require('axios');
+const { supabase } = require('./db.js');
 
 // Routers
-import watchlistRouter from './routes/v1/watchlist.js';
-import pairingRouter from './routes/v1/quiz/pairing.js';
-import foodQuizRouter from './routes/v1/quiz/food.js';
-import movieQuizRouter from './routes/v1/quiz/movie.js'; // ✅ ADDED
+const watchlistRouter = require('./routes/v1/watchlist.js');
+const pairingRouter = require('./routes/v1/quiz/pairing.js');
+const foodQuizRouter = require('./routes/v1/quiz/food.js');
+const movieQuizRouter = require('./routes/v1/quiz/movie.js'); // ✅ ADDED
 
 dotenv.config();
 

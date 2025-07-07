@@ -1,26 +1,28 @@
-import express from "express";
-import { z } from "zod";
-import { supabase } from "../../db.js";
+// ~/Projects/movfoo-backend/src/routes/v1/watchlist.js
+
+import express from 'express';
+import { z } from 'zod';
+import { supabase } from '../../db.js';
 
 const router = express.Router();
 
 /**
  * GET /v1/watchlist
- * List all items for the authenticated user (via userId in body for MVP)
+ * List all items for the authenticated user (via userId in query)
  */
-router.get("/", async (req, res) => {
+router.get('/', async (req, res) => {
   const userId = req.query.userId;
-  if (!userId) return res.status(400).json({ message: "Missing userId" });
+  if (!userId) return res.status(400).json({ message: 'Missing userId' });
 
   const { data, error } = await supabase
-    .from("watchlist")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .from('watchlist')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error("Fetch error:", error);
-    return res.status(500).json({ message: "Failed to fetch watchlist" });
+    console.error('Fetch error:', error);
+    return res.status(500).json({ message: 'Failed to fetch watchlist' });
   }
 
   res.json({ items: data });
@@ -30,7 +32,7 @@ router.get("/", async (req, res) => {
  * POST /v1/watchlist
  * Add a new item to the watchlist
  */
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   const schema = z.object({
     user_id: z.string().uuid(),
     title: z.string(),
@@ -39,23 +41,23 @@ router.post("/", async (req, res) => {
     season: z.number().optional(),
     episode: z.number().optional(),
     progress: z.number().optional(),
-    status: z.enum(["watching", "watched", "saved"]).default("watching"),
+    status: z.enum(['watching', 'watched', 'saved']).default('watching'),
   });
 
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: "Invalid input", issues: parsed.error.issues });
+    return res.status(400).json({ message: 'Invalid input', issues: parsed.error.issues });
   }
 
   const { data, error } = await supabase
-    .from("watchlist")
+    .from('watchlist')
     .insert(parsed.data)
-    .select("*")
+    .select('*')
     .single();
 
   if (error) {
-    console.error("Insert error:", error);
-    return res.status(500).json({ message: "Failed to add item" });
+    console.error('Insert error:', error);
+    return res.status(500).json({ message: 'Failed to add item' });
   }
 
   res.status(201).json({ item: data });
@@ -65,32 +67,32 @@ router.post("/", async (req, res) => {
  * PATCH /v1/watchlist/:id
  * Update progress or status for a given watchlist item
  */
-router.patch("/:id", async (req, res) => {
+router.patch('/:id', async (req, res) => {
   const { id } = req.params;
   const patchSchema = z.object({
     user_id: z.string().uuid(),
     season: z.number().optional(),
     episode: z.number().optional(),
     progress: z.number().optional(),
-    status: z.enum(["watching", "watched", "saved"]).optional(),
+    status: z.enum(['watching', 'watched', 'saved']).optional(),
   });
 
   const parsed = patchSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: "Invalid input", issues: parsed.error.issues });
+    return res.status(400).json({ message: 'Invalid input', issues: parsed.error.issues });
   }
 
   const { data, error } = await supabase
-    .from("watchlist")
+    .from('watchlist')
     .update(parsed.data)
-    .eq("id", id)
-    .eq("user_id", parsed.data.user_id)
-    .select("*")
+    .eq('id', id)
+    .eq('user_id', parsed.data.user_id)
+    .select('*')
     .single();
 
   if (error) {
-    console.error("Update error:", error);
-    return res.status(500).json({ message: "Failed to update item" });
+    console.error('Update error:', error);
+    return res.status(500).json({ message: 'Failed to update item' });
   }
 
   res.json({ item: data });
