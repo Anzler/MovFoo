@@ -83,7 +83,7 @@ router.get("/results", async (req, res) => {
     ];
 
     res.status(200).json({ results: mockResults });
-  } catch (err) {
+ } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to retrieve quiz results" });
   }
