@@ -9,7 +9,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import helmet from 'helmet';
+import helmet from 'helmet/dist/index.js'; // ✅ ESM-compatible import
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
