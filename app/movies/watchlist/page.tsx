@@ -1,20 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient, User } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-
-interface MovieRow {
-  id: number;
-  title: string;
-  poster_url: string | null;
-}
 
 interface WatchlistRow {
   id: number;
-  content_id: number;
-  streaming_service: string | null;
-  movies: MovieRow | null;
+  title: string;
+  poster_url: string | null;
+  platform: string | null;
 }
 
 export default function WatchlistPage() {
@@ -47,22 +41,13 @@ export default function WatchlistPage() {
       try {
         setLoading(true);
         const { data, error } = await supabase
-          .from('user_watchlist')
-          .select(
-            `
-            id,
-            content_id,
-            streaming_service,
-            movies (
-              id, title, poster_url
-            )
-          `
-          )
+          .from('watchlist')
+          .select('id, title, poster_url, platform')
           .eq('user_id', user.id)
           .order('id', { ascending: false });
 
         if (error) throw error;
-        setWatchlist(data as unknown as WatchlistRow[]);
+        setWatchlist(data || []);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -102,10 +87,10 @@ export default function WatchlistPage() {
       <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {watchlist.map((item) => (
           <div key={item.id} className="bg-white rounded shadow flex flex-col">
-            {item.movies?.poster_url ? (
+            {item.poster_url ? (
               <img
-                src={item.movies.poster_url}
-                alt={item.movies.title}
+                src={item.poster_url}
+                alt={item.title}
                 className="w-full h-48 object-cover"
               />
             ) : (
@@ -114,10 +99,10 @@ export default function WatchlistPage() {
               </div>
             )}
             <div className="flex-1 p-3 flex flex-col">
-              <span className="font-medium text-sm">{item.movies?.title}</span>
-              {item.streaming_service && (
+              <span className="font-medium text-sm">{item.title}</span>
+              {item.platform && (
                 <span className="text-xs text-gray-600 mt-1">
-                  📺 {item.streaming_service}
+                  📺 {item.platform}
                 </span>
               )}
             </div>
