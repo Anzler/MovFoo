@@ -19,14 +19,18 @@ export default function WatchlistPage() {
 
   // ── Auth check ───────────────────────────────
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
+    supabase.auth
+      .getUser()
+      .then(({ data }: { data: { user: User | null } }) => {
+        setUser(data.user);
+      });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) =>
       setUser(session?.user ?? null)
     );
+
     return () => subscription.unsubscribe();
   }, []);
 
