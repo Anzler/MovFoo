@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface Movie {
-  id: string;
   title: string;
   poster_url?: string;
   synopsis: string;
@@ -13,12 +12,11 @@ interface Movie {
 }
 
 interface Recipe {
-  id: string;
-  title: string;
-  image: string;
-  summary?: string;
-  readyInMinutes?: number;
-  sourceUrl?: string;
+  name: string;
+  poster_url?: string;
+  description?: string;
+  prep_time?: number;
+  sourceUrl?: string; // If available
 }
 
 export default function PairingResultsInner() {
@@ -42,8 +40,8 @@ export default function PairingResultsInner() {
         const res = await fetch(`/v1/quiz/pairing/results?s=${sessionId}`);
         if (!res.ok) throw new Error('Failed to fetch pairing results');
         const data = await res.json();
-        setMovie(data.movie);
-        setRecipe(data.recipe);
+        setMovie(data.movie ?? null);
+        setRecipe(data.recipe ?? null);
       } catch (err) {
         console.error(err);
         setError('Could not load pairing. Please try again.');
@@ -72,11 +70,13 @@ export default function PairingResultsInner() {
       {/* Movie Card */}
       <div className="bg-white shadow rounded p-4">
         <h2 className="text-xl font-bold mb-2">🎬 Your Movie</h2>
-        <img
-          src={movie.poster_url}
-          alt={movie.title}
-          className="w-full h-auto mb-3 rounded"
-        />
+        {movie.poster_url && (
+          <img
+            src={movie.poster_url}
+            alt={movie.title}
+            className="w-full h-auto mb-3 rounded"
+          />
+        )}
         <h3 className="text-lg font-semibold">{movie.title}</h3>
         <p className="text-sm text-gray-700 mt-2">{movie.synopsis}</p>
         {movie.rating && (
@@ -87,23 +87,22 @@ export default function PairingResultsInner() {
         )}
       </div>
 
-      {/* Food Card */}
+      {/* Recipe Card */}
       <div className="bg-white shadow rounded p-4">
         <h2 className="text-xl font-bold mb-2">🍽️ Your Dish</h2>
-        <img
-          src={recipe.image}
-          alt={recipe.title}
-          className="w-full h-auto mb-3 rounded"
-        />
-        <h3 className="text-lg font-semibold">{recipe.title}</h3>
-        {recipe.summary && (
-          <p
-            className="text-sm text-gray-700 mt-2"
-            dangerouslySetInnerHTML={{ __html: recipe.summary }}
+        {recipe.poster_url && (
+          <img
+            src={recipe.poster_url}
+            alt={recipe.name}
+            className="w-full h-auto mb-3 rounded"
           />
         )}
-        {recipe.readyInMinutes && (
-          <p className="mt-2 text-sm text-gray-600">⏱️ Ready in {recipe.readyInMinutes} minutes</p>
+        <h3 className="text-lg font-semibold">{recipe.name}</h3>
+        {recipe.description && (
+          <p className="text-sm text-gray-700 mt-2">{recipe.description}</p>
+        )}
+        {recipe.prep_time && (
+          <p className="mt-2 text-sm text-gray-600">⏱️ Ready in {recipe.prep_time} minutes</p>
         )}
         {recipe.sourceUrl && (
           <a
