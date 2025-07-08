@@ -2,16 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import ResultsInner from '@/components/quiz/ResultsInner';
-
-export interface Movie {
-  id: string;
-  title: string;
-  synopsis?: string;
-  poster_url?: string;
-  rating?: number;
-  source?: string;
-}
+import ResultsInner, { Movie } from '@/components/quiz/ResultsInner'; // ✅ use shared type
 
 export default function ResultsPage() {
   const searchParams = useSearchParams();
