@@ -2,14 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import ResultsInner from '@/components/quiz/ResultsInner'; // ✅ FIXED
-
-type Movie = {
-  title: string;
-  poster_url?: string;
-  synopsis?: string;
-  rating?: number;
-};
+import ResultsInner, { Movie } from '@/components/quiz/ResultsInner'; // ✅ Import both component and type
 
 export default function MovieResultsPage() {
   const searchParams = useSearchParams();
@@ -42,8 +35,13 @@ export default function MovieResultsPage() {
     fetchResults();
   }, [sessionId]);
 
-  if (loading) return <div className="text-center mt-20 text-gray-500">Loading your results…</div>;
-  if (error) return <div className="text-center mt-20 text-red-600">{error}</div>;
+  if (loading) {
+    return <div className="text-center mt-20 text-gray-500">Loading your results…</div>;
+  }
+
+  if (error) {
+    return <div className="text-center mt-20 text-red-600">{error}</div>;
+  }
 
   return <ResultsInner results={results} />;
 }
