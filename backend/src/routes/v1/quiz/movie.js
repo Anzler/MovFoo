@@ -47,7 +47,7 @@ router.post("/submit", async (req, res) => {
 
     const results = response.data.results.slice(0, 3);
     res.status(200).json({ results });
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch from TMDB" });
   }
@@ -55,9 +55,9 @@ router.post("/submit", async (req, res) => {
 
 // GET /v1/quiz/movie/results?s=sessionId
 router.get("/results", async (req, res) => {
-  const sessionId = req.query.s as string;
+  const sessionId = req.query.s;
 
-  if (!sessionId) {
+  if (!sessionId || typeof sessionId !== "string") {
     return res.status(400).json({ error: "Missing session ID" });
   }
 
@@ -83,7 +83,7 @@ router.get("/results", async (req, res) => {
     ];
 
     res.status(200).json({ results: mockResults });
- } catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to retrieve quiz results" });
   }
