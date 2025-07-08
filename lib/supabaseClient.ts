@@ -1,11 +1,7 @@
-// ~/lib/supabaseClient.ts
 'use client';
 
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from './supabase.types'; // your generated types
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
+import type { Database } from './supabase.types'; // Adjust this if your types file has a different name or path
 
-export const supabase = createBrowserSupabaseClient<Database>({
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-});
+export const supabase = createPagesBrowserClient<Database>();
 

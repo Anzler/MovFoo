@@ -1,10 +1,10 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import ResultsInner, { Movie } from '@/components/quiz/ResultsInner'; // ✅ Import component and shared type
+import { Suspense, useEffect, useState } from 'react';
+import ResultsInner, { Movie } from '@/components/quiz/ResultsInner';
 
-function ResultsLoader() {
+function MovieResultsContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('s');
   const [results, setResults] = useState<Movie[]>([]);
@@ -35,21 +35,16 @@ function ResultsLoader() {
     fetchResults();
   }, [sessionId]);
 
-  if (loading) {
-    return <div className="text-center mt-20 text-gray-500">Loading your results…</div>;
-  }
-
-  if (error) {
-    return <div className="text-center mt-20 text-red-600">{error}</div>;
-  }
+  if (loading) return <div className="text-center mt-20 text-gray-500">Loading your results…</div>;
+  if (error) return <div className="text-center mt-20 text-red-600">{error}</div>;
 
   return <ResultsInner results={results} />;
 }
 
 export default function MovieResultsPage() {
   return (
-    <Suspense fallback={<div className="text-center mt-20 text-gray-400">Loading results…</div>}>
-      <ResultsLoader />
+    <Suspense fallback={<div className="text-center mt-20 text-gray-500">Loading session…</div>}>
+      <MovieResultsContent />
     </Suspense>
   );
 }
