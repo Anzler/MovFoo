@@ -2,32 +2,40 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import MovieQuizResults from '@/components/quiz/ResultsInner'; // ✅ FIXED
+import ResultsInner from '@/components/quiz/ResultsInner';
+
+export interface Movie {
+  id: string;
+  title: string;
+  synopsis?: string;
+  poster_url?: string;
+  rating?: number;
+  source?: string;
+}
 
 export default function ResultsPage() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('s');
-
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sessionId) {
-      setError('Missing session ID.');
+      setError('Missing session ID');
       setLoading(false);
       return;
     }
 
     const fetchResults = async () => {
       try {
-        const res = await fetch(`/v1/quiz/movie/results?s=${sessionId}`);
-        if (!res.ok) throw new Error('Failed to fetch results');
+        const res = await fetch(`/v1/quiz/pairing/results?s=${sessionId}`);
+        if (!res.ok) throw new Error('Failed to fetch pairing results');
         const data = await res.json();
-        setResults(data.results || []);
+        setResults(data.movie ? [data.movie] : []);
       } catch (err) {
         console.error(err);
-        setError('Could not load results. Please try again.');
+        setError('Could not load results.');
       } finally {
         setLoading(false);
       }
@@ -36,9 +44,9 @@ export default function ResultsPage() {
     fetchResults();
   }, [sessionId]);
 
-  if (loading) return <div className="text-center mt-20 text-gray-500">Loading your results…</div>;
-  if (error) return <div className="text-center mt-20 text-red-600">{error}</div>;
+  if (loading) return <p className="p-6 text-center">Loading results…</p>;
+  if (error) return <p className="p-6 text-red-600">{error}</p>;
 
-  return <MovieQuizResults results={results} />;
+  return <ResultsInner results={results} />;
 }
 
