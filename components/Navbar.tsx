@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [email, setEmail] = useState<string | null>(null);
@@ -10,13 +11,20 @@ export default function Navbar() {
 
   useEffect(() => {
     // Get user session
-    supabase.auth.getUser().then(({ data }) => {
-      setEmail(data.user?.email ?? null);
-    });
+    supabase.auth.getUser().then(
+      ({ data }: { data: { user: User | null } }) => {
+        setEmail(data.user?.email ?? null);
+      }
+    );
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setEmail(session?.user?.email ?? null);
-    });
+    // Subscribe to auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        setEmail(session?.user?.email ?? null);
+      }
+    );
 
     // Ping backend for health check
     const pingBackend = async () => {
