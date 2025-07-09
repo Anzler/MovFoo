@@ -1,6 +1,5 @@
-'use client';
-
 import Link from 'next/link';
+import SurpriseButton from '@/components/SurpriseButton';
 
 export default function HomePage() {
   return (
@@ -22,11 +21,12 @@ export default function HomePage() {
               Show only Movies & TV Shows
             </label>
 
-            <Link href="/quiz/movie/surprise">
-              <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
-                Surprise Me
-              </button>
-            </Link>
+            <SurpriseButton
+              to="/quiz/movie/surprise"
+              className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100"
+            >
+              Surprise Me
+            </SurpriseButton>
 
             <Link href="/movies/watchlist">
               <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
@@ -52,12 +52,12 @@ export default function HomePage() {
               Show only Food
             </label>
 
-            <button
-              onClick={() => alert('Surprise coming soon!')}
+            <SurpriseButton
+              to="/quiz/food/surprise"
               className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100"
             >
               Surprise Me
-            </button>
+            </SurpriseButton>
           </div>
         </div>
       </div>
