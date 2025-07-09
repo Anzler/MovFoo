@@ -5,6 +5,7 @@
 
 import express from "express";
 import { z } from "zod";
+import axios from "axios";
 import { supabase } from "../../../db.js";
 
 const router = express.Router();
@@ -70,7 +71,7 @@ router.get("/results", async (req, res) => {
 
 /**
  * GET /v1/quiz/food/surprise
- * Return a single random recipe (for "Surprise Me" feature).
+ * Return a single random recipe (for "Surprise Me" feature) from Supabase.
  */
 router.get("/surprise", async (_req, res) => {
   try {
@@ -106,6 +107,43 @@ router.get("/surprise", async (_req, res) => {
   } catch (err) {
     console.error("❌ Surprise food error:", err);
     res.status(500).json({ message: "Failed to fetch surprise recipe" });
+  }
+});
+
+/**
+ * GET /v1/quiz/food/spoonacular-surprise
+ * Return a single random recipe from the Spoonacular API.
+ */
+router.get("/spoonacular-surprise", async (_req, res) => {
+  try {
+    const apiKey = process.env.SPOONACULAR_API_KEY;
+    if (!apiKey) return res.status(500).json({ message: "Spoonacular API key missing" });
+
+    const response = await axios.get(
+      "https://api.spoonacular.com/recipes/random",
+      {
+        params: {
+          apiKey: apiKey,
+          number: 1
+        }
+      }
+    );
+    const recipe = response.data.recipes[0];
+    if (!recipe) throw new Error("No Spoonacular recipe found");
+
+    res.json({
+      recipe: {
+        id: recipe.id,
+        title: recipe.title,
+        image: recipe.image,
+        summary: recipe.summary,
+        readyInMinutes: recipe.readyInMinutes,
+        sourceUrl: recipe.sourceUrl
+      }
+    });
+  } catch (err) {
+    console.error("❌ Spoonacular API error:", err.response?.data || err);
+    res.status(500).json({ message: "Failed to fetch from Spoonacular" });
   }
 });
 
