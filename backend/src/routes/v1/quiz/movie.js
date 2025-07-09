@@ -6,13 +6,13 @@ const router = express.Router();
 
 // Input schema for quiz submission
 const QuizInput = z.object({
-  genre: z.string(), // e.g., "Action"
+  genre: z.string(),
   type: z.enum(["movie", "tv"]),
   releaseWindow: z.enum(["new", "classic"]),
-  platforms: z.array(z.string()).optional(), // Reserved for future use
+  platforms: z.array(z.string()).optional(),
 });
 
-// POST /v1/quiz/movie/submit
+// --- POST /v1/quiz/movie/submit ---
 router.post("/submit", async (req, res) => {
   const parsed = QuizInput.safeParse(req.body);
 
@@ -28,7 +28,6 @@ router.post("/submit", async (req, res) => {
       Comedy: 35,
       Drama: 18,
       Horror: 27,
-      // Extend as needed
     };
 
     const genreId = genreMap[genre];
@@ -48,21 +47,20 @@ router.post("/submit", async (req, res) => {
     const results = response.data.results.slice(0, 3);
     res.status(200).json({ results });
   } catch (err) {
-    console.error(err);
+    console.error("TMDB fetch error:", err);
     res.status(500).json({ error: "Failed to fetch from TMDB" });
   }
 });
 
-// GET /v1/quiz/movie/results?s=sessionId
+// --- GET /v1/quiz/movie/results?s=sessionId ---
 router.get("/results", async (req, res) => {
   const sessionId = req.query.s;
-
   if (!sessionId || typeof sessionId !== "string") {
     return res.status(400).json({ error: "Missing session ID" });
   }
 
   try {
-    // Replace this with your real DB/session logic as you wire up your quizzes.
+    // Replace with real logic to look up quiz results from your DB or session
     const mockResults = [
       {
         id: "1",
@@ -84,55 +82,67 @@ router.get("/results", async (req, res) => {
 
     res.status(200).json({ results: mockResults });
   } catch (err) {
-    console.error(err);
+    console.error("Quiz results fetch error:", err);
     res.status(500).json({ error: "Failed to retrieve quiz results" });
   }
 });
 
-// NEW: GET /v1/quiz/movie/surprise (returns one random movie)
+// --- GET /v1/quiz/movie/surprise --- (for "Surprise Me" front-end) ---
 router.get("/surprise", async (req, res) => {
   try {
-    // First, get the total number of pages for popular movies
-    const meta = await axios.get("https://api.themoviedb.org/3/discover/movie", {
-      params: {
-        api_key: process.env.TMDB_API_KEY,
-        sort_by: "popularity.desc",
-        page: 1,
-      },
-    });
-    const totalPages = Math.min(meta.data.total_pages, 500); // TMDB max 500
-
-    // Pick a random page and then a random result from that page
-    const randomPage = Math.floor(Math.random() * totalPages) + 1;
-    const pageRes = await axios.get("https://api.themoviedb.org/3/discover/movie", {
+    // We'll fetch a random popular movie from TMDB
+    const randomPage = Math.floor(Math.random() * 10) + 1; // pages 1-10
+    const response = await axios.get("https://api.themoviedb.org/3/discover/movie", {
       params: {
         api_key: process.env.TMDB_API_KEY,
         sort_by: "popularity.desc",
         page: randomPage,
       },
     });
-    const movies = pageRes.data.results;
-    if (!movies || movies.length === 0) {
-      return res.status(404).json({ error: "No movies found." });
-    }
-    const randomMovie = movies[Math.floor(Math.random() * movies.length)];
 
-    res.status(200).json({
+    const movies = response.data.results;
+    if (!movies || movies.length === 0) {
+      console.warn("No results from TMDB for surprise.");
+      return res.status(404).json({ error: "No movies found for surprise" });
+    }
+
+    // Pick a truly random movie from this page
+    const movie = movies[Math.floor(Math.random() * movies.length)];
+    if (!movie) {
+      console.warn("No movie found at random index on surprise page");
+      return res.status(404).json({ error: "No movie found" });
+    }
+
+    // Clean, minimal response for front-end
+    res.json({
       movie: {
-        id: randomMovie.id,
-        title: randomMovie.title,
-        poster_url: randomMovie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${randomMovie.poster_path}`
+        id: movie.id,
+        title: movie.title,
+        poster_url: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : null,
-        synopsis: randomMovie.overview,
-        rating: randomMovie.vote_average,
-        release_date: randomMovie.release_date,
-        // Optionally add more fields as desired
+        synopsis: movie.overview,
+        rating: movie.vote_average,
+        release_date: movie.release_date,
+        source: "TMDB",
       },
     });
   } catch (err) {
-    console.error("Surprise endpoint error:", err.message);
-    res.status(500).json({ error: "Failed to fetch a surprise movie from TMDB" });
+    console.error("Surprise movie error:", err);
+
+    // Fallback: return a hardcoded "surprise" if all else fails
+    res.status(200).json({
+      movie: {
+        id: "fallback-1",
+        title: "Surprise: The Matrix",
+        poster_url: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+        synopsis: "A computer hacker learns about the true nature of reality...",
+        rating: 8.7,
+        release_date: "1999-03-31",
+        source: "Fallback (Hardcoded)",
+      },
+      warning: "Fallback movie used due to API failure.",
+    });
   }
 });
 
