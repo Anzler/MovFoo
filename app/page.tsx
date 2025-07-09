@@ -1,5 +1,6 @@
+'use client';
+
 import Link from 'next/link';
-import SurpriseButton from '@/components/SurpriseButton';
 
 export default function HomePage() {
   return (
@@ -18,12 +19,11 @@ export default function HomePage() {
               <input type="checkbox" disabled className="mr-2" />
               Show only Movies & TV Shows
             </label>
-            <SurpriseButton
-              to="/quiz/movie/surprise"
-              className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100"
-            >
-              Surprise Me
-            </SurpriseButton>
+            <Link href="/quiz/movie/surprise">
+              <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
+                Surprise Me
+              </button>
+            </Link>
             <Link href="/movies/watchlist">
               <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
                 Currently Watching
@@ -31,6 +31,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+
         {/* Right Column – Food */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold mb-6">What do you want to eat?</h2>
@@ -44,19 +45,16 @@ export default function HomePage() {
               <input type="checkbox" disabled className="mr-2" />
               Show only Food
             </label>
-            <SurpriseButton
-              to="/quiz/food/surprise"
-              className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100"
-            >
-              Surprise Me
-            </SurpriseButton>
-            {/* Spoonacular Surprise */}
-            <SurpriseButton
-              to="/quiz/food/spoonacular-surprise"
-              className="w-full border border-blue-300 rounded px-4 py-2 hover:bg-blue-100"
-            >
-              Spoonacular Surprise
-            </SurpriseButton>
+            <Link href="/quiz/food/surprise">
+              <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
+                Surprise Me
+              </button>
+            </Link>
+            <Link href="/quiz/food/spoonacular-surprise">
+              <button className="w-full border border-green-300 rounded px-4 py-2 hover:bg-green-100 font-semibold">
+                Surprise Me (Spoonacular)
+              </button>
+            </Link>
           </div>
         </div>
       </div>
