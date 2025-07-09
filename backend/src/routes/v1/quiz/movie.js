@@ -89,5 +89,37 @@ router.get("/results", async (req, res) => {
   }
 });
 
+// GET /v1/quiz/movie/surprise
+router.get("/surprise", async (req, res) => {
+  try {
+    const response = await axios.get("https://api.themoviedb.org/3/movie/popular", {
+      params: {
+        api_key: process.env.TMDB_API_KEY,
+        page: 1,
+      },
+    });
+
+    const movies = response.data.results;
+    if (!movies || movies.length === 0) {
+      return res.status(404).json({ error: "No movies found" });
+    }
+
+    const randomIndex = Math.floor(Math.random() * movies.length);
+    const movie = movies[randomIndex];
+
+    res.status(200).json({
+      id: movie.id,
+      title: movie.title,
+      synopsis: movie.overview,
+      poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+      rating: movie.vote_average,
+      source: "TMDB",
+    });
+  } catch (err) {
+    console.error("❌ Surprise movie fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch surprise movie" });
+  }
+});
+
 export default router;
 
