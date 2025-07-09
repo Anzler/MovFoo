@@ -68,6 +68,47 @@ router.get("/results", async (req, res) => {
   }
 });
 
+/**
+ * GET /v1/quiz/food/surprise
+ * Return a single random recipe (for "Surprise Me" feature).
+ */
+router.get("/surprise", async (_req, res) => {
+  try {
+    // Count total recipes to pick a random offset
+    const { count, error: countError } = await supabase
+      .from("recipe_view")
+      .select('*', { count: 'exact', head: true });
+    if (countError || !count || count === 0) {
+      throw new Error("No recipes available");
+    }
+    const randomOffset = Math.floor(Math.random() * count);
+
+    const { data, error } = await supabase
+      .from("recipe_view")
+      .select("*")
+      .range(randomOffset, randomOffset)
+      .limit(1);
+
+    if (error || !data || !data.length) throw error || new Error("No recipe found");
+
+    const r = data[0];
+
+    res.json({
+      recipe: {
+        id: r.id,
+        title: r.name,
+        image: r.image_url,
+        summary: r.description,
+        readyInMinutes: r.prep_time,
+        sourceUrl: r.source_url || undefined
+      }
+    });
+  } catch (err) {
+    console.error("❌ Surprise food error:", err);
+    res.status(500).json({ message: "Failed to fetch surprise recipe" });
+  }
+});
+
 export default router;
 
 /* ───────────────────────── Helpers ───────────────────────── */
