@@ -15,18 +15,25 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'image.tmdb.org',
         pathname: '/t/p/**'
+      },
+      {
+        protocol: 'https',
+        hostname: '**.spoonacular.com',
+        pathname: '/recipeImages/**'
       }
     ]
   },
 
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias['@'] = path.resolve(__dirname);
 
-    // Prevent backend folder from being included in Next.js build
-    config.module.rules.push({
-      test: /backend/,
-      use: 'null-loader'
-    });
+    // Ignore backend folder in frontend bundle
+    if (!isServer) {
+      config.module.rules.push({
+        test: /backend/,
+        use: 'null-loader'
+      });
+    }
 
     return config;
   }

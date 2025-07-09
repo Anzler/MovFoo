@@ -6,6 +6,7 @@ export default function HomePage() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
         {/* Left Column – Movies */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold mb-6">What do you want to watch?</h2>
@@ -45,18 +46,14 @@ export default function HomePage() {
               <input type="checkbox" disabled className="mr-2" />
               Show only Food
             </label>
-            <Link href="/quiz/food/surprise">
-              <button className="w-full border border-gray-300 rounded px-4 py-2 hover:bg-gray-100">
-                Surprise Me
-              </button>
-            </Link>
             <Link href="/quiz/food/spoonacular-surprise">
               <button className="w-full border border-green-300 rounded px-4 py-2 hover:bg-green-100 font-semibold">
-                Surprise Me (Spoonacular)
+                Surprise Me
               </button>
             </Link>
           </div>
         </div>
+
       </div>
     </main>
   );
