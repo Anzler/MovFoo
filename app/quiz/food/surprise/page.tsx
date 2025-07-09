@@ -20,12 +20,21 @@ export default function SurpriseFoodPage() {
     const fetchSurprise = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const res = await fetch('/v1/quiz/food/surprise');
-        if (!res.ok) throw new Error('Failed to fetch surprise recipe');
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('❌ Failed response:', errorText);
+          throw new Error('Failed to fetch surprise recipe');
+        }
+
         const data = await res.json();
+        console.log('✅ Surprise recipe response:', data);
         setRecipe(data.recipe || null);
       } catch (err: any) {
+        console.error('❌ Surprise fetch error:', err);
         setError('Could not load surprise recipe. Please try again.');
         setRecipe(null);
       } finally {
@@ -41,19 +50,27 @@ export default function SurpriseFoodPage() {
   }
 
   if (error || !recipe) {
-    return <div className="text-center mt-20 text-red-600">{error || 'No recipe found.'}</div>;
+    return (
+      <div className="text-center mt-20 text-red-600">
+        {error || 'No recipe found.'}
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col items-center mt-8">
-      <img
-        src={recipe.image}
-        alt={recipe.title}
-        className="w-64 h-64 object-cover rounded shadow mb-4"
-      />
-      <h1 className="text-2xl font-bold mb-2">{recipe.title}</h1>
+      {recipe.image && (
+        <img
+          src={recipe.image}
+          alt={recipe.title || 'Surprise Dish'}
+          className="w-64 h-64 object-cover rounded shadow mb-4"
+        />
+      )}
+      <h1 className="text-2xl font-bold mb-2">{recipe.title || 'Untitled Dish'}</h1>
       {recipe.readyInMinutes && (
-        <div className="text-gray-500 mb-2">⏱️ Ready in {recipe.readyInMinutes} minutes</div>
+        <div className="text-gray-500 mb-2">
+          ⏱️ Ready in {recipe.readyInMinutes} minutes
+        </div>
       )}
       {recipe.summary && (
         <div
