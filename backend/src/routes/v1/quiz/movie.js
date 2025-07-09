@@ -62,7 +62,7 @@ router.get("/results", async (req, res) => {
   }
 
   try {
-    // Replace with real logic to look up quiz results from your DB or session
+    // Replace this with your real DB/session logic as you wire up your quizzes.
     const mockResults = [
       {
         id: "1",
@@ -89,35 +89,50 @@ router.get("/results", async (req, res) => {
   }
 });
 
-// GET /v1/quiz/movie/surprise
+// NEW: GET /v1/quiz/movie/surprise (returns one random movie)
 router.get("/surprise", async (req, res) => {
   try {
-    const response = await axios.get("https://api.themoviedb.org/3/movie/popular", {
+    // First, get the total number of pages for popular movies
+    const meta = await axios.get("https://api.themoviedb.org/3/discover/movie", {
       params: {
         api_key: process.env.TMDB_API_KEY,
+        sort_by: "popularity.desc",
         page: 1,
       },
     });
+    const totalPages = Math.min(meta.data.total_pages, 500); // TMDB max 500
 
-    const movies = response.data.results;
+    // Pick a random page and then a random result from that page
+    const randomPage = Math.floor(Math.random() * totalPages) + 1;
+    const pageRes = await axios.get("https://api.themoviedb.org/3/discover/movie", {
+      params: {
+        api_key: process.env.TMDB_API_KEY,
+        sort_by: "popularity.desc",
+        page: randomPage,
+      },
+    });
+    const movies = pageRes.data.results;
     if (!movies || movies.length === 0) {
-      return res.status(404).json({ error: "No movies found" });
+      return res.status(404).json({ error: "No movies found." });
     }
-
-    const randomIndex = Math.floor(Math.random() * movies.length);
-    const movie = movies[randomIndex];
+    const randomMovie = movies[Math.floor(Math.random() * movies.length)];
 
     res.status(200).json({
-      id: movie.id,
-      title: movie.title,
-      synopsis: movie.overview,
-      poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-      rating: movie.vote_average,
-      source: "TMDB",
+      movie: {
+        id: randomMovie.id,
+        title: randomMovie.title,
+        poster_url: randomMovie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${randomMovie.poster_path}`
+          : null,
+        synopsis: randomMovie.overview,
+        rating: randomMovie.vote_average,
+        release_date: randomMovie.release_date,
+        // Optionally add more fields as desired
+      },
     });
   } catch (err) {
-    console.error("❌ Surprise movie fetch error:", err);
-    res.status(500).json({ error: "Failed to fetch surprise movie" });
+    console.error("Surprise endpoint error:", err.message);
+    res.status(500).json({ error: "Failed to fetch a surprise movie from TMDB" });
   }
 });
 
