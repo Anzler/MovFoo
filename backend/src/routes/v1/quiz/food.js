@@ -128,7 +128,7 @@ router.get("/spoonacular-surprise", async (_req, res) => {
         }
       }
     );
-    const recipe = response.data.recipes[0];
+    const recipe = response.data.recipes && response.data.recipes[0];
     if (!recipe) throw new Error("No Spoonacular recipe found");
 
     res.json({
@@ -142,7 +142,12 @@ router.get("/spoonacular-surprise", async (_req, res) => {
       }
     });
   } catch (err) {
-    console.error("❌ Spoonacular API error:", err.response?.data || err);
+    // Handle Spoonacular API errors gracefully
+    if (axios.isAxiosError(err) && err.response) {
+      console.error("❌ Spoonacular API error:", err.response.data);
+      return res.status(500).json({ message: "Spoonacular API error: " + JSON.stringify(err.response.data) });
+    }
+    console.error("❌ Spoonacular API error:", err);
     res.status(500).json({ message: "Failed to fetch from Spoonacular" });
   }
 });
