@@ -1,59 +1,49 @@
 // ~/Projects/movfoo/app/quiz/config/tvQuizSteps.ts
+import type { Question } from "@/components/quiz/QuizEngine";
 
-export const tvQuizSteps = [
+export const tvQuizSteps: Question[] = [
   {
-    id: 'media_type',
-    label: 'What are you looking for?',
-    type: 'single',
-    apiField: 'media_type',
+    id: "media_type",
+    label: "What are you watching?",
+    type: "single",
+    apiField: "media_type",
     options: [
-      { value: 'tv', label: 'TV Series 📺' }
-    ],
-    required: true
-  },
-  {
-    id: 'genre',
-    label: 'Choose your genre',
-    type: 'multi',
-    apiField: 'with_genres',
-    options: [
-      { value: '18', label: 'Drama' },
-      { value: '35', label: 'Comedy' },
-      { value: '10765', label: 'Sci-Fi & Fantasy' },
-      { value: '16', label: 'Animation' },
-      { value: '80', label: 'Crime' }
+      { value: "tv", label: "TV Series 📺" }
     ]
   },
   {
-    id: 'episodes',
-    label: 'Number of episodes?',
-    type: 'range',
-    apiField: 'number_of_episodes',
+    id: "genre",
+    label: "Pick a genre",
+    type: "multi",
+    apiField: "with_genres",
+    options: [
+      { value: "18", label: "Drama" },
+      { value: "35", label: "Comedy" },
+      { value: "10765", label: "Sci-Fi & Fantasy" },
+      { value: "99", label: "Documentary" }
+    ]
+  },
+  {
+    id: "episodes",
+    label: "Number of episodes?",
+    type: "range",
+    apiField: "number_of_episodes",
     rangeConfig: {
       min: 1,
-      max: 200,
-      step: 10
+      max: 100,
+      step: 5
     }
   },
   {
-    id: 'language',
-    label: 'Language?',
-    type: 'single',
-    apiField: 'with_original_language',
+    id: "language",
+    label: "Original language?",
+    type: "single",
+    apiField: "with_original_language",
     options: [
-      { value: 'en', label: 'English' },
-      { value: 'es', label: 'Spanish' },
-      { value: 'ja', label: 'Japanese' }
-    ]
-  },
-  {
-    id: 'status',
-    label: 'Still airing or concluded?',
-    type: 'single',
-    apiField: 'status',
-    options: [
-      { value: 'Returning Series', label: 'Still airing' },
-      { value: 'Ended', label: 'Concluded' }
+      { value: "en", label: "English" },
+      { value: "es", label: "Spanish" },
+      { value: "ko", label: "Korean" },
+      { value: "ja", label: "Japanese" }
     ]
   }
 ];
