@@ -20,11 +20,12 @@ export default function SpoonacularSurprisePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/v1/quiz/food/spoonacular-surprise');
+      const res = await fetch('/api/v1/spoonacular/surprise'); // ✅ match backend
       if (!res.ok) throw new Error('Failed to fetch surprise recipe');
       const data = await res.json();
-      setRecipe(data.recipe);
+      setRecipe(data); // ✅ fix: backend returns flat recipe
     } catch (err) {
+      console.error('Fetch error:', err);
       setError('Could not fetch a surprise recipe. Please try again.');
       setRecipe(null);
     } finally {
@@ -34,7 +35,7 @@ export default function SpoonacularSurprisePage() {
 
   useEffect(() => {
     fetchSurpriseRecipe();
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
