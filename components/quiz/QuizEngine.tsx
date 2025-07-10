@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import type { Question } from "./types";
+import type { Question } from "@/components/quiz/types";
 
 type ResultItem = {
   title: string;
