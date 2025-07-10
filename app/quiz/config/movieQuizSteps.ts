@@ -1,6 +1,8 @@
 // ~/Projects/movfoo/app/quiz/config/movieQuizSteps.ts
 
-export const movieQuizSteps = [
+import type { Question } from "@/components/quiz/types";
+
+export const movieQuizSteps: Question[] = [
   {
     id: 'media_type',
     label: 'What type of content are you looking for?',
@@ -9,8 +11,7 @@ export const movieQuizSteps = [
     options: [
       { value: 'movie', label: 'Movie 🎬' },
       { value: 'tv', label: 'TV Show 📺' }
-    ],
-    required: true
+    ]
   },
   {
     id: 'genre',
@@ -24,8 +25,7 @@ export const movieQuizSteps = [
       { value: '27', label: 'Horror' },
       { value: '10749', label: 'Romance' },
       { value: '878', label: 'Sci-Fi' }
-    ],
-    required: true
+    ]
   },
   {
     id: 'decade',
