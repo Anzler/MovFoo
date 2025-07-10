@@ -22,7 +22,7 @@ import watchlistRouter from './routes/v1/watchlist.ts';
 import pairingRouter from './routes/v1/quiz/pairing.js';
 import foodQuizRouter from './routes/v1/quiz/food.js';
 import movieQuizRouter from './routes/v1/quiz/movie.js';
-
+import spoonacularRouter from './routes/v1/spoonacular.js';
 
 dotenv.config();
 
@@ -60,6 +60,7 @@ app.use("/v1/watchlist", watchlistRouter);
 app.use("/v1/quiz/pairing", pairingRouter);
 app.use("/v1/quiz/food", foodQuizRouter);
 app.use("/v1/quiz/movie", movieQuizRouter);
+app.use("/api/v1/spoonacular", spoonacularRouter);  // <-- Added Spoonacular surprise route
 
 /* ── Start server ─────────────────────────────────────────────────────── */
 app.listen(PORT, () => {
