@@ -4,7 +4,7 @@ export const foodQuizSteps = [
   {
     id: 'meal_type',
     label: 'What type of meal?',
-    type: 'single',
+    type: 'single', // ✅ FIXED
     apiField: 'type',
     options: [
       { value: 'main course', label: 'Main course' },
@@ -16,7 +16,7 @@ export const foodQuizSteps = [
   {
     id: 'diet',
     label: 'Any dietary preference?',
-    type: 'multi',
+    type: 'multi', // ✅ FIXED
     apiField: 'diet',
     options: [
       { value: 'vegetarian', label: 'Vegetarian' },
@@ -28,7 +28,7 @@ export const foodQuizSteps = [
   {
     id: 'cuisine',
     label: 'Preferred cuisine?',
-    type: 'multi',
+    type: 'multi', // ✅ FIXED
     apiField: 'cuisine',
     options: [
       { value: 'italian', label: 'Italian' },
@@ -40,7 +40,7 @@ export const foodQuizSteps = [
   {
     id: 'ready_in',
     label: 'Ready in under (minutes)',
-    type: 'range',
+    type: 'range', // ✅ FIXED
     apiField: 'readyInMinutes',
     rangeConfig: {
       min: 5,
