@@ -1,13 +1,18 @@
-"use client";
+// ~/Projects/movfoo/components/quiz/QuizEngine.tsx
+'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
+type Option = { value: string; label: string };
+
 type Question = {
-  key: string;
-  prompt: string;
-  options: string[];
+  id: string;
+  label: string;
+  type: "single" | "multi" | "range";
+  options?: Option[];
+  rangeConfig?: { min: number; max: number; step: number };
 };
 
 type ResultItem = {
@@ -21,30 +26,37 @@ type ResultItem = {
 };
 
 type Props = {
-  quizType: "movie" | "food" | "pairing";
+  quizType: "movie" | "food" | "pairing" | "tv";
   questions: Question[];
   autoAdvanceToNextSlug?: string;
 };
 
 export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug }: Props) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>({});
   const [results, setResults] = useState<ResultItem[] | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-  const current = questions[step];
+  const question = questions[step];
+  const storageKey = `quiz_answers_${quizType}`;
 
-  const handleAnswer = async (value: string) => {
-    const nextAnswers = { ...answers, [current.key]: value };
-    setAnswers(nextAnswers);
+  useEffect(() => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) setAnswers(JSON.parse(stored));
+  }, [storageKey]);
+
+  const saveAnswer = async (value: any) => {
+    const next = { ...answers, [question.id]: value };
+    setAnswers(next);
+    localStorage.setItem(storageKey, JSON.stringify(next));
+
     setLoading(true);
-
     try {
       const res = await axios.post(`/v1/quiz/${quizType}/submit`, {
         sessionId,
-        questionKey: current.key,
+        questionKey: question.id,
         answerValue: value,
       });
 
@@ -102,22 +114,75 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     );
   }
 
+  const renderField = () => {
+    if (question.type === "single" && question.options) {
+      return (
+        <div className="grid gap-4">
+          {question.options.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => saveAnswer(opt.value)}
+              disabled={loading}
+              className="w-full py-3 px-4 border rounded-lg bg-white hover:bg-gray-50 text-left"
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    if (question.type === "multi" && question.options) {
+      const selected: string[] = answers[question.id] || [];
+      const toggle = (value: string) => {
+        const next = selected.includes(value)
+          ? selected.filter((v) => v !== value)
+          : [...selected, value];
+        saveAnswer(next);
+      };
+
+      return (
+        <div className="grid gap-4">
+          {question.options.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => toggle(opt.value)}
+              className={`w-full py-3 px-4 border rounded-lg text-left ${
+                selected.includes(opt.value) ? "bg-blue-100" : "bg-white"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    if (question.type === "range" && question.rangeConfig) {
+      const value = answers[question.id] ?? question.rangeConfig.min;
+      return (
+        <div className="text-center">
+          <input
+            type="range"
+            min={question.rangeConfig.min}
+            max={question.rangeConfig.max}
+            step={question.rangeConfig.step}
+            value={value}
+            onChange={(e) => saveAnswer(Number(e.target.value))}
+            className="w-full"
+          />
+          <div className="text-sm text-gray-600 mt-2">Selected: {value}</div>
+        </div>
+      );
+    }
+
+    return <p className="text-red-500">Unsupported question type</p>;
+  };
+
   return (
     <div className="max-w-xl mx-auto mt-10">
-      <h2 className="text-xl font-bold mb-4">{current.prompt}</h2>
-      <div className="grid gap-4">
-        {current.options.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => handleAnswer(opt)}
-            disabled={loading}
-            className="w-full py-3 px-4 border rounded-lg bg-white hover:bg-gray-50 text-left"
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-
+      <h2 className="text-xl font-bold mb-4">{question.label}</h2>
+      {renderField()}
       <div className="text-sm text-gray-500 mt-6">
         Question {step + 1} of {questions.length}
       </div>
