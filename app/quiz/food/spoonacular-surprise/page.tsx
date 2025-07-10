@@ -20,10 +20,12 @@ export default function SpoonacularSurprisePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/v1/spoonacular/surprise'); // ✅ match backend
+      const res = await fetch('/api/v1/spoonacular/surprise');
       if (!res.ok) throw new Error('Failed to fetch surprise recipe');
       const data = await res.json();
-      setRecipe(data); // ✅ fix: backend returns flat recipe
+
+      console.log("🎯 Fetched recipe:", data); // optional debug
+      setRecipe(data);
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Could not fetch a surprise recipe. Please try again.');
