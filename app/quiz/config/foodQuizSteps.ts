@@ -4,7 +4,7 @@ export const foodQuizSteps = [
   {
     id: 'meal_type',
     label: 'What type of meal?',
-    type: 'single',
+    type: 'single', // ✅ must be "single"
     apiField: 'type',
     options: [
       { value: 'main course', label: 'Main course' },
@@ -16,7 +16,7 @@ export const foodQuizSteps = [
   {
     id: 'diet',
     label: 'Any dietary preference?',
-    type: 'multi',
+    type: 'multi', // ✅ must be "multi"
     apiField: 'diet',
     options: [
       { value: 'vegetarian', label: 'Vegetarian' },
@@ -40,7 +40,7 @@ export const foodQuizSteps = [
   {
     id: 'ready_in',
     label: 'Ready in under (minutes)',
-    type: 'range',
+    type: 'range', // ✅ must be "range"
     apiField: 'readyInMinutes',
     rangeConfig: {
       min: 5,
