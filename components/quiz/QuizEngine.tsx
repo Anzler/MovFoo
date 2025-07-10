@@ -4,23 +4,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-type Option = { value: string; label: string };
-
-type Question = {
-  id: string;
-  label: string;
-  type: "single" | "multi" | "range";
-  options?: Option[];
-  rangeConfig?: { min: number; max: number; step: number };
-};
+import type { Question } from "./types";
 
 type ResultItem = {
   title: string;
   synopsis?: string;
   poster_url?: string;
   rating?: number;
-  name?: string; // for recipes
+  name?: string;
   prep_time?: string;
   description?: string;
 };

@@ -1,6 +1,6 @@
 // ~/Projects/movfoo/app/quiz/config/foodQuizSteps.ts
 
-import type { Question } from "@/components/quiz/QuizEngine";
+import type { Question } from "@/components/quiz/types";
 
 export const foodQuizSteps: Question[] = [
   {
