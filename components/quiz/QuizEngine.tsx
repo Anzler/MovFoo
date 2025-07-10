@@ -1,30 +1,15 @@
+// ~/Projects/movfoo/components/quiz/QuizEngine.tsx
 'use client';
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-// Define Question, allowing flexible 'type' values
-export type QuestionOption = {
-  value: string;
-  label: string;
-};
+// Re-export the Question type so configs can import:
+//   import type { Question } from "@/components/quiz/QuizEngine";
+export type { Question } from "./types";
 
-export type RangeConfig = {
-  min: number;
-  max: number;
-  step: number;
-};
-
-export type Question = {
-  id: string;
-  label: string;
-  type: string; // originally "range" | "single" | "multi", now flexible
-  apiField: string;
-  options?: QuestionOption[];
-  rangeConfig?: RangeConfig;
-  required?: boolean;
-};
+import type { Question } from "./types";
 
 type ResultItem = {
   title: string;
