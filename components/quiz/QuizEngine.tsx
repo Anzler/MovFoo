@@ -1,18 +1,29 @@
-// ~/Projects/movfoo/components/quiz/QuizEngine.tsx
 'use client';
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import type { Question as FullQuestion } from "@/components/quiz/types";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import type { Question as DefinedQuestion } from './types';
 
-type LegacyQuestion = {
-  key: string;
-  prompt: string;
-  options: string[];
+// Accept both legacy and new question shapes
+type RawQuestion =
+  | DefinedQuestion
+  | {
+      // Legacy shape: key, prompt, string[] options
+      key: string;
+      prompt: string;
+      options: string[];
+    };
+
+// Normalized shape that QuizEngine expects
+type Question = {
+  id: string;
+  label: string;
+  type: 'single' | 'multi' | 'range';
+  apiField: string;
+  options?: { value: string; label: string }[];
+  rangeConfig?: { min: number; max: number; step: number };
 };
-
-type QuestionWrapper = FullQuestion | LegacyQuestion;
 
 type ResultItem = {
   title: string;
@@ -25,8 +36,8 @@ type ResultItem = {
 };
 
 type Props = {
-  quizType: "movie" | "food" | "pairing" | "tv";
-  questions: QuestionWrapper[];
+  quizType: 'movie' | 'food' | 'pairing' | 'tv';
+  questions: RawQuestion[];
   autoAdvanceToNextSlug?: string;
 };
 
@@ -38,28 +49,6 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Normalizer: turn either FullQuestion or LegacyQuestion into FullQuestion
-  const normalize = (q: QuestionWrapper): FullQuestion => {
-    if ("type" in q && "id" in q) {
-      // already full shape
-      return q as FullQuestion;
-    }
-    // legacy shape → full single-choice question
-    const legacy = q as LegacyQuestion;
-    return {
-      id: legacy.key,
-      label: legacy.prompt,
-      apiField: legacy.key,
-      type: "single",
-      options: legacy.options.map((opt) => ({
-        value: opt,
-        label: opt,
-      })),
-    };
-  };
-
-  const raw = questions[step];
-  const question = normalize(raw);
   const storageKey = `quiz_answers_${quizType}`;
 
   useEffect(() => {
@@ -67,31 +56,61 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     if (stored) setAnswers(JSON.parse(stored));
   }, [storageKey]);
 
+  // Normalize raw question into full shape
+  const normalize = (raw: RawQuestion): Question => {
+    // Legacy shape
+    if ('key' in raw && 'prompt' in raw && Array.isArray(raw.options) && typeof raw.options[0] === 'string') {
+      return {
+        id: raw.key,
+        label: raw.prompt,
+        type: 'single',
+        apiField: raw.key,
+        options: (raw.options as string[]).map((v) => ({ value: v, label: v })),
+      };
+    }
+    // DefinedQuestion shape
+    const def = raw as DefinedQuestion;
+    // Ensure type is one of allowed or fall back to 'single'
+    const t = def.type === 'single' || def.type === 'multi' || def.type === 'range' ? def.type : 'single';
+    return {
+      id: def.id,
+      label: def.label,
+      type: t,
+      apiField: def.apiField,
+      options: def.options,
+      rangeConfig: def.rangeConfig,
+    };
+  };
+
+  const question = normalize(questions[step]);
+
   const saveAnswer = async (value: any) => {
-    const next = { ...answers, [question.id]: value };
-    setAnswers(next);
-    localStorage.setItem(storageKey, JSON.stringify(next));
+    const nextAnswers = { ...answers, [question.id]: value };
+    setAnswers(nextAnswers);
+    localStorage.setItem(storageKey, JSON.stringify(nextAnswers));
 
     setLoading(true);
     try {
       const res = await axios.post(`/v1/quiz/${quizType}/submit`, {
         sessionId,
-        questionKey: question.id,
+        questionKey: question.apiField,
         answerValue: value,
       });
+
       setSessionId(res.data.sessionId);
 
       if (autoAdvanceToNextSlug) {
         router.push(autoAdvanceToNextSlug);
         return;
       }
+
       if (step + 1 < questions.length) {
         setStep((s) => s + 1);
       } else {
         setResults(res.data.results);
       }
     } catch (err) {
-      console.error("Quiz submit failed", err);
+      console.error('Quiz submit failed', err);
     } finally {
       setLoading(false);
     }
@@ -105,29 +124,17 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
           {results.map((item, i) => (
             <div key={i} className="p-4 border rounded-lg shadow">
               {item.poster_url && (
-                <img
-                  src={item.poster_url}
-                  alt={item.title || item.name}
-                  className="w-full h-auto rounded"
-                />
+                <img src={item.poster_url} alt={item.title || item.name} className="w-full h-auto rounded" />
               )}
-              <h3 className="text-lg font-semibold mt-2">
-                {item.title || item.name}
-              </h3>
+              <h3 className="text-lg font-semibold mt-2">{item.title || item.name}</h3>
               {(item.synopsis || item.description) && (
-                <p className="text-sm text-gray-600">
-                  {item.synopsis || item.description}
-                </p>
+                <p className="text-sm text-gray-600">{item.synopsis || item.description}</p>
               )}
               {item.rating && (
-                <p className="text-xs text-yellow-600 mt-1">
-                  ⭐ Rating: {item.rating}/10
-                </p>
+                <p className="text-xs text-yellow-600 mt-1">⭐ Rating: {item.rating}/10</p>
               )}
               {item.prep_time && (
-                <p className="text-xs text-teal-600 mt-1">
-                  ⏱️ Prep Time: {item.prep_time}
-                </p>
+                <p className="text-xs text-teal-600 mt-1">⏱️ Prep Time: {item.prep_time}</p>
               )}
             </div>
           ))}
@@ -137,7 +144,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   }
 
   const renderField = () => {
-    if (question.type === "single" && question.options) {
+    if (question.type === 'single' && question.options) {
       return (
         <div className="grid gap-4">
           {question.options.map((opt) => (
@@ -154,7 +161,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
       );
     }
 
-    if (question.type === "multi" && question.options) {
+    if (question.type === 'multi' && question.options) {
       const selected: string[] = answers[question.id] || [];
       const toggle = (value: string) => {
         const next = selected.includes(value)
@@ -170,7 +177,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
               key={opt.value}
               onClick={() => toggle(opt.value)}
               className={`w-full py-3 px-4 border rounded-lg text-left ${
-                selected.includes(opt.value) ? "bg-blue-100" : "bg-white"
+                selected.includes(opt.value) ? 'bg-blue-100' : 'bg-white'
               }`}
             >
               {opt.label}
@@ -180,7 +187,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
       );
     }
 
-    if (question.type === "range" && question.rangeConfig) {
+    if (question.type === 'range' && question.rangeConfig) {
       const value = answers[question.id] ?? question.rangeConfig.min;
       return (
         <div className="text-center">
