@@ -4,7 +4,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import type { Question } from "@/components/quiz/types";
+import type { Question as FullQuestion } from "@/components/quiz/types";
+
+type LegacyQuestion = {
+  key: string;
+  prompt: string;
+  options: string[];
+};
+
+type QuestionWrapper = FullQuestion | LegacyQuestion;
 
 type ResultItem = {
   title: string;
@@ -18,7 +26,7 @@ type ResultItem = {
 
 type Props = {
   quizType: "movie" | "food" | "pairing" | "tv";
-  questions: Question[];
+  questions: QuestionWrapper[];
   autoAdvanceToNextSlug?: string;
 };
 
@@ -30,7 +38,28 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const question = questions[step];
+  // Normalizer: turn either FullQuestion or LegacyQuestion into FullQuestion
+  const normalize = (q: QuestionWrapper): FullQuestion => {
+    if ("type" in q && "id" in q) {
+      // already full shape
+      return q as FullQuestion;
+    }
+    // legacy shape → full single-choice question
+    const legacy = q as LegacyQuestion;
+    return {
+      id: legacy.key,
+      label: legacy.prompt,
+      apiField: legacy.key,
+      type: "single",
+      options: legacy.options.map((opt) => ({
+        value: opt,
+        label: opt,
+      })),
+    };
+  };
+
+  const raw = questions[step];
+  const question = normalize(raw);
   const storageKey = `quiz_answers_${quizType}`;
 
   useEffect(() => {
@@ -50,14 +79,12 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
         questionKey: question.id,
         answerValue: value,
       });
-
       setSessionId(res.data.sessionId);
 
       if (autoAdvanceToNextSlug) {
         router.push(autoAdvanceToNextSlug);
         return;
       }
-
       if (step + 1 < questions.length) {
         setStep((s) => s + 1);
       } else {
@@ -78,7 +105,11 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
           {results.map((item, i) => (
             <div key={i} className="p-4 border rounded-lg shadow">
               {item.poster_url && (
-                <img src={item.poster_url} alt={item.title || item.name} className="w-full h-auto rounded" />
+                <img
+                  src={item.poster_url}
+                  alt={item.title || item.name}
+                  className="w-full h-auto rounded"
+                />
               )}
               <h3 className="text-lg font-semibold mt-2">
                 {item.title || item.name}
