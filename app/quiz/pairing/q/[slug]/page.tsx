@@ -1,4 +1,3 @@
-// ~/Projects/movfoo/app/quiz/pairing/q/[slug]/page.tsx
 "use client";
 
 import { useParams } from "next/navigation";
@@ -7,16 +6,16 @@ import { pairingQuizSteps } from "@/app/quiz/config/pairingQuizSteps";
 
 export default function PairingQuizStep() {
   const params = useParams();
-  const slug =
-    typeof params.slug === "string"
-      ? params.slug
-      : Array.isArray(params.slug)
+  const slug = typeof params.slug === "string"
+    ? params.slug
+    : Array.isArray(params.slug)
       ? params.slug[0]
       : "";
 
   const stepIndex = pairingQuizSteps.findIndex((q) => q.id === slug);
+  const step = pairingQuizSteps[stepIndex];
 
-  if (stepIndex === -1) {
+  if (!step) {
     return (
       <div className="text-center mt-20">
         <h2 className="text-xl font-semibold text-red-600">
@@ -26,8 +25,6 @@ export default function PairingQuizStep() {
       </div>
     );
   }
-
-  const step = pairingQuizSteps[stepIndex];
 
   return (
     <div className="max-w-xl mx-auto px-4 py-12">

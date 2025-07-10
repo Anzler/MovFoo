@@ -1,6 +1,4 @@
-// ~/Projects/movfoo/app/quiz/config/pairingQuizSteps.ts
-
-import type { Question } from "@/components/quiz/types";
+import type { Question } from "@/components/quiz/QuizEngine";
 
 export const pairingQuizSteps: Question[] = [
   {
@@ -17,7 +15,7 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "meal_type",
-    label: "What kind of food fits your show?",
+    label: "What kind of meal pairs with your show?",
     type: "single",
     apiField: "type",
     options: [
@@ -28,7 +26,7 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "genre",
-    label: "Pick a genre to pair with",
+    label: "Pick a genre",
     type: "multi",
     apiField: "with_genres",
     options: [
