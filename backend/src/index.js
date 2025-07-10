@@ -10,14 +10,6 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-// (Optional) Debug print — remove after testing
-console.log("🧪 ENV DEBUG:", {
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-  TMDB_API_KEY: !!process.env.TMDB_API_KEY,
-  SPOONACULAR_API_KEY: !!process.env.SPOONACULAR_API_KEY,
-});
-
 import express from 'express';
 import cors from 'cors';
 import { z } from 'zod';
