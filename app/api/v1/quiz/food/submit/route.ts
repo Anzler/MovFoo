@@ -1,4 +1,5 @@
 // ~/Projects/movfoo/app/api/v1/quiz/food/submit/route.ts
+
 import { NextResponse } from "next/server";
 
 const MOCK_RECIPES = [
@@ -17,7 +18,8 @@ const MOCK_RECIPES = [
 ];
 
 export async function POST(request: Request) {
-  // (optional) const { answers } = await request.json();
+  // you could read real answers here:
+  // const { answers } = await request.json();
   return NextResponse.json({ results: MOCK_RECIPES });
 }
 

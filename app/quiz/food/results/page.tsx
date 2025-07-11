@@ -1,4 +1,4 @@
-// ~/Projects/movfoo/app/quiz/food/results.tsx
+// ~/Projects/movfoo/app/quiz/food/results/page.tsx
 'use client';
 
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ type Recipe = {
 
 export default function FoodResultsPage() {
   const [recipes, setRecipes] = useState<Recipe[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchResults = async () => {
@@ -22,29 +22,12 @@ export default function FoodResultsPage() {
     setError(null);
 
     try {
-      const answers = JSON.parse(localStorage.getItem("quiz_answers_food") || "{}");
-
-      const res = await axios.post("/v1/quiz/food/submit", {
-        answers,
-      });
-
-      // ✅ TEMP MOCK: display mock recipes if backend returns empty
-      setRecipes(
-        res.data.results || [
-          {
-            name: "Stuffed Bell Peppers",
-            description: "Healthy and easy stuffed peppers with rice and ground turkey.",
-            prep_time: "45 minutes",
-            poster_url: "https://spoonacular.com/recipeImages/715538-556x370.jpg",
-          },
-          {
-            name: "Zucchini Noodles with Pesto",
-            description: "Low-carb spiralized zucchini with homemade basil pesto.",
-            prep_time: "25 minutes",
-            poster_url: "https://spoonacular.com/recipeImages/660228-556x370.jpg",
-          },
-        ]
+      const answers = JSON.parse(
+        localStorage.getItem("quiz_answers_food") || "{}"
       );
+
+      const res = await axios.post("/api/v1/quiz/food/submit", { answers });
+      setRecipes(res.data.results);
     } catch (err: any) {
       console.error("Failed to fetch food results:", err);
       setError("Could not load recommendations. Please try again.");
@@ -58,7 +41,11 @@ export default function FoodResultsPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center mt-20 text-gray-600">Loading results…</div>;
+    return (
+      <div className="text-center mt-20 text-gray-600">
+        Loading results…
+      </div>
+    );
   }
 
   if (error) {
@@ -104,10 +91,16 @@ export default function FoodResultsPage() {
                 className="w-full h-auto mb-3 rounded"
               />
             )}
-            <h2 className="text-lg font-semibold mb-1">{item.title || item.name}</h2>
-            {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
+            <h2 className="text-lg font-semibold mb-1">
+              {item.title || item.name}
+            </h2>
+            {item.description && (
+              <p className="text-sm text-gray-600">{item.description}</p>
+            )}
             {item.prep_time && (
-              <p className="text-xs text-teal-600 mt-1">⏱️ {item.prep_time}</p>
+              <p className="text-xs text-teal-600 mt-1">
+                ⏱️ {item.prep_time}
+              </p>
             )}
           </div>
         ))}
