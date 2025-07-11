@@ -28,7 +28,23 @@ export default function FoodResultsPage() {
         answers,
       });
 
-      setRecipes(res.data.results || []);
+      // ✅ TEMP MOCK: display mock recipes if backend returns empty
+      setRecipes(
+        res.data.results || [
+          {
+            name: "Stuffed Bell Peppers",
+            description: "Healthy and easy stuffed peppers with rice and ground turkey.",
+            prep_time: "45 minutes",
+            poster_url: "https://spoonacular.com/recipeImages/715538-556x370.jpg",
+          },
+          {
+            name: "Zucchini Noodles with Pesto",
+            description: "Low-carb spiralized zucchini with homemade basil pesto.",
+            prep_time: "25 minutes",
+            poster_url: "https://spoonacular.com/recipeImages/660228-556x370.jpg",
+          },
+        ]
+      );
     } catch (err: any) {
       console.error("Failed to fetch food results:", err);
       setError("Could not load recommendations. Please try again.");
