@@ -5,10 +5,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-// Re-export the Question type so configs can import:
-//   import type { Question } from "@/components/quiz/QuizEngine";
+// Re-export for convenience
 export type { Question } from "./types";
-
 import type { Question } from "./types";
 
 type ResultItem = {
@@ -34,8 +32,8 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   const [results, setResults] = useState<ResultItem[] | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const question = questions[step];
   const storageKey = `quiz_answers_${quizType}`;
 
   useEffect(() => {
@@ -43,12 +41,23 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     if (stored) setAnswers(JSON.parse(stored));
   }, [storageKey]);
 
+  if (questions.length === 0) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        No questions available.
+      </div>
+    );
+  }
+
+  const question = questions[step];
+
   const saveAnswer = async (value: any) => {
     const next = { ...answers, [question.id]: value };
     setAnswers(next);
     localStorage.setItem(storageKey, JSON.stringify(next));
-
     setLoading(true);
+    setSubmitError(null);
+
     try {
       const res = await axios.post(`/v1/quiz/${quizType}/submit`, {
         sessionId,
@@ -70,6 +79,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
       }
     } catch (err) {
       console.error("Quiz submit failed", err);
+      setSubmitError("There was an issue submitting your answer. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -179,6 +189,9 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     <div className="max-w-xl mx-auto mt-10">
       <h2 className="text-xl font-bold mb-4">{question.label}</h2>
       {renderField()}
+      {submitError && (
+        <p className="text-red-500 text-sm mt-4">{submitError}</p>
+      )}
       <div className="text-sm text-gray-500 mt-6">
         Question {step + 1} of {questions.length}
       </div>
