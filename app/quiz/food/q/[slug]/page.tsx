@@ -3,17 +3,20 @@
 
 import { useParams } from "next/navigation";
 import QuizEngine from "@/components/quiz/QuizEngine";
-import { foodQuizSteps } from "../../config/foodQuizSteps";
+import { foodQuizSteps } from "@/app/quiz/config/foodQuizSteps";
 
 export default function FoodQuizStepPage() {
   const params = useParams();
-  const slug = typeof params.slug === "string"
-    ? params.slug
-    : Array.isArray(params.slug)
-    ? params.slug[0]
-    : "";
+
+  const slug =
+    typeof params.slug === "string"
+      ? params.slug
+      : Array.isArray(params.slug)
+      ? params.slug[0]
+      : "";
 
   const stepIndex = foodQuizSteps.findIndex((step) => step.id === slug);
+
   if (stepIndex === -1) {
     return (
       <div className="text-center mt-20">
