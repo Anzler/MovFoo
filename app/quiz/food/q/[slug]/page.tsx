@@ -1,19 +1,25 @@
 // ~/Projects/movfoo/app/quiz/food/q/[slug]/page.tsx
 'use client';
 
-import { useParams } from 'next/navigation';
-import { foodQuizSteps } from '@/app/quiz/config/foodQuizSteps';
-import QuizEngine from '@/components/quiz/QuizEngine';
+import { useParams } from "next/navigation";
+import QuizEngine from "@/components/quiz/QuizEngine";
+import { foodQuizSteps } from "../../config/foodQuizSteps";
 
 export default function FoodQuizStepPage() {
   const params = useParams();
-  const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : '';
+  const slug = typeof params.slug === "string"
+    ? params.slug
+    : Array.isArray(params.slug)
+    ? params.slug[0]
+    : "";
 
-  const stepIndex = foodQuizSteps.findIndex((q) => q.id === slug);
+  const stepIndex = foodQuizSteps.findIndex((step) => step.id === slug);
   if (stepIndex === -1) {
     return (
       <div className="text-center mt-20">
-        <h2 className="text-xl font-semibold text-red-600">Invalid quiz step: “{slug}”</h2>
+        <h2 className="text-xl font-semibold text-red-600">
+          Invalid quiz step: “{slug}”
+        </h2>
         <p className="text-gray-500">Please return to the quiz start page.</p>
       </div>
     );
