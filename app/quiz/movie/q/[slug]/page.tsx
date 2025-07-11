@@ -1,20 +1,20 @@
 // ~/Projects/movfoo/app/quiz/movie/q/[slug]/page.tsx
-"use client";
+'use client';
 
-import { useParams } from "next/navigation";
-import QuizEngine from "@/components/quiz/QuizEngine";
-import { movieQuizSteps } from "@/app/quiz/config/movieQuizSteps";
+import { useParams } from 'next/navigation';
+import QuizEngine from '@/components/quiz/QuizEngine';
+import { movieQuizSteps } from '@/app/quiz/config/movieQuizSteps';
 
-export default function MovieQuizStep() {
+export default function MovieQuizStepPage() {
   const params = useParams();
-  const slug =
-    typeof params.slug === "string"
+  const slug: string =
+    typeof params.slug === 'string'
       ? params.slug
       : Array.isArray(params.slug)
       ? params.slug[0]
-      : "";
+      : '';
 
-  const stepIndex = movieQuizSteps.findIndex((q) => q.id === slug);
+  const stepIndex = movieQuizSteps.findIndex((step) => step.id === slug);
 
   if (stepIndex === -1) {
     return (
