@@ -16,7 +16,7 @@ export default function WatchlistPage() {
 
   // ── Auth check ───────────────────────────────
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase!.auth.getUser().then(({ data }) => {
       if (data?.user) {
         setUser(data.user);
       } else {
@@ -31,7 +31,7 @@ export default function WatchlistPage() {
 
     const fetchWatchlist = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabase!
           .from('watchlist')
           .select('*')
           .eq('user_id', user.id);
@@ -60,9 +60,7 @@ export default function WatchlistPage() {
           {watchlist.map((item) => (
             <li key={item.id} className="border rounded p-4 shadow">
               <h2 className="font-semibold">{item.title}</h2>
-              <p className="text-sm text-gray-600">
-                {item.type} on {item.service}
-              </p>
+              <p className="text-sm text-gray-600">{item.type} on {item.service}</p>
             </li>
           ))}
         </ul>
