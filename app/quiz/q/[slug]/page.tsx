@@ -3,13 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { movieQuizSteps } from "@/app/quiz/config/movieQuizSteps"; // Centralized config
-
-type Question = {
-  id: string;
-  prompt: string;
-  options: string[];
-  apiField: string;
-};
+import type { Question } from "@/components/quiz/types"; // Ensures matching shape
 
 // Utility fetcher
 const fetcher = (url: string, body: unknown) =>
@@ -46,7 +40,7 @@ export default function QuizQuestionPage() {
     try {
       const data = await fetcher(`/api/quiz/watch/answer`, {
         sessionId,
-        userId: "anon-user", // TODO: swap for Supabase auth user if available
+        userId: "anon-user", // TODO: replace with Supabase auth user if available
         questionKey: question.apiField,
         answerValue: value,
       });
@@ -68,16 +62,18 @@ export default function QuizQuestionPage() {
     <section className="space-y-4 mt-10 max-w-xl mx-auto">
       <h2 className="text-xl font-semibold">{question.label}</h2>
 
-      {question.options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => answer(opt.value)}
-          className="block w-full py-2 px-4 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
-          disabled={busy}
-        >
-          {opt.label}
-        </button>
-      ))}
+      {(question.type === "single" || question.type === "multi") && question.options && (
+        question.options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => answer(opt.value)}
+            className="block w-full py-2 px-4 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+            disabled={busy}
+          >
+            {opt.label}
+          </button>
+        ))
+      )}
 
       <button
         onClick={() => router.push(`/quiz/results?s=${sessionId ?? ""}`)}
