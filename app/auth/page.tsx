@@ -1,30 +1,31 @@
 'use client';
 
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient'; // path adjusted if needed
 
 export default function AuthPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!supabase) {
+      console.warn('Supabase client is not available');
+      return;
+    }
+
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) router.push('/movies/watchlist');
+      if (data.user) {
+        router.push('/movies/watchlist');
+      }
     });
   }, [router]);
 
   return (
-    <section className="max-w-md mx-auto mt-12">
-      <h1 className="text-2xl font-bold mb-6 text-center">Welcome to MovFoo</h1>
-      <Auth
-        supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
-        providers={['google']}
-        redirectTo={typeof window !== 'undefined' ? location.origin : undefined}
-      />
-    </section>
+    <main className="text-center py-20">
+      <h1 className="text-3xl font-bold">Sign In</h1>
+      <p className="text-gray-600 mt-2">Please log in to continue.</p>
+      {/* Insert your login form or provider buttons here */}
+    </main>
   );
 }
 
