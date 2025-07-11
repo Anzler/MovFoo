@@ -17,7 +17,7 @@ const MOCK_RECIPES = [
 ];
 
 export async function POST(request: Request) {
-  // (Optionally read request.json() here to inspect `answers`)
+  // (optional) const { answers } = await request.json();
   return NextResponse.json({ results: MOCK_RECIPES });
 }
 
