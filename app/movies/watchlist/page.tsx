@@ -1,9 +1,12 @@
+// ~/Projects/movfoo/app/movies/watchlist/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import type { WatchlistRow } from '@/types/generated'; // Adjust as needed
+import type { Database } from '@/lib/supabase.types';
+
+type WatchlistRow = Database['public']['Tables']['watchlist']['Row'];
 
 export default function WatchlistPage() {
   const router = useRouter();
@@ -13,13 +16,8 @@ export default function WatchlistPage() {
 
   // ── Auth check ───────────────────────────────
   useEffect(() => {
-    if (!supabase) {
-      console.warn('⚠️ Supabase client not initialized.');
-      return;
-    }
-
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
+      if (data?.user) {
         setUser(data.user);
       } else {
         router.push('/auth');
@@ -29,7 +27,7 @@ export default function WatchlistPage() {
 
   // ── Fetch data ───────────────────────────────
   useEffect(() => {
-    if (!user || !supabase) return;
+    if (!user) return;
 
     const fetchWatchlist = async () => {
       try {
@@ -62,7 +60,9 @@ export default function WatchlistPage() {
           {watchlist.map((item) => (
             <li key={item.id} className="border rounded p-4 shadow">
               <h2 className="font-semibold">{item.title}</h2>
-              <p className="text-sm text-gray-600">{item.type} on {item.service}</p>
+              <p className="text-sm text-gray-600">
+                {item.type} on {item.service}
+              </p>
             </li>
           ))}
         </ul>
