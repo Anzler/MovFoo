@@ -1,15 +1,15 @@
-// ~/Projects/movfoo/app/quiz/tv/q/[slug]/page.tsx
+// ~/Projects/movfoo/app/quiz/food/q/[slug]/page.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
-import { tvQuizSteps } from '@/app/quiz/config/tvQuizSteps';
+import { foodQuizSteps } from '@/app/quiz/config/foodQuizSteps';
 import QuizEngine from '@/components/quiz/QuizEngine';
 
-export default function TvQuizStepPage() {
+export default function FoodQuizStepPage() {
   const params = useParams();
   const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : '';
 
-  const stepIndex = tvQuizSteps.findIndex((q) => q.id === slug);
+  const stepIndex = foodQuizSteps.findIndex((q) => q.id === slug);
   if (stepIndex === -1) {
     return (
       <div className="text-center mt-20">
@@ -19,17 +19,17 @@ export default function TvQuizStepPage() {
     );
   }
 
-  const step = tvQuizSteps[stepIndex];
+  const step = foodQuizSteps[stepIndex];
 
   return (
     <div className="max-w-xl mx-auto px-4 py-12">
       <QuizEngine
-        quizType="tv"
+        quizType="food"
         questions={[step]}
         autoAdvanceToNextSlug={
-          stepIndex + 1 < tvQuizSteps.length
-            ? `/quiz/tv/q/${tvQuizSteps[stepIndex + 1].id}`
-            : `/quiz/tv/results`
+          stepIndex + 1 < foodQuizSteps.length
+            ? `/quiz/food/q/${foodQuizSteps[stepIndex + 1].id}`
+            : `/quiz/food/results`
         }
       />
     </div>

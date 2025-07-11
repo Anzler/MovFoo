@@ -1,54 +1,43 @@
 // ~/Projects/movfoo/app/quiz/config/foodQuizSteps.ts
-
 import type { Question } from "@/components/quiz/types";
 
 export const foodQuizSteps: Question[] = [
   {
-    id: "meal_type",
-    label: "What type of meal?",
-    type: "single",
-    apiField: "type",
-    options: [
-      { value: "main course", label: "Main course" },
-      { value: "dessert", label: "Dessert" },
-      { value: "appetizer", label: "Appetizer" },
-      { value: "snack", label: "Snack" }
-    ]
-  },
-  {
     id: "diet",
-    label: "Any dietary preference?",
-    type: "multi",
+    label: "Do you follow a dietary preference?",
+    type: "single",
     apiField: "diet",
     options: [
       { value: "vegetarian", label: "Vegetarian" },
       { value: "vegan", label: "Vegan" },
-      { value: "gluten free", label: "Gluten-Free" },
-      { value: "keto", label: "Keto" }
-    ]
+      { value: "pescetarian", label: "Pescetarian" },
+      { value: "gluten free", label: "Gluten Free" },
+      { value: "none", label: "No Preference" },
+    ],
   },
   {
     id: "cuisine",
-    label: "Preferred cuisine?",
-    type: "multi",
+    label: "Pick a cuisine",
+    type: "single",
     apiField: "cuisine",
     options: [
-      { value: "italian", label: "Italian" },
       { value: "mexican", label: "Mexican" },
+      { value: "italian", label: "Italian" },
       { value: "thai", label: "Thai" },
-      { value: "japanese", label: "Japanese" }
-    ]
+      { value: "indian", label: "Indian" },
+      { value: "american", label: "American" },
+    ],
   },
   {
-    id: "ready_in",
-    label: "Ready in under (minutes)",
+    id: "prep_time",
+    label: "Prep time (in minutes)",
     type: "range",
-    apiField: "readyInMinutes",
+    apiField: "maxReadyTime",
     rangeConfig: {
-      min: 5,
-      max: 90,
-      step: 5
-    }
-  }
+      min: 10,
+      max: 60,
+      step: 5,
+    },
+  },
 ];
 
