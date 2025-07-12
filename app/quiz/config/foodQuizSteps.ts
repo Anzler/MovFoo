@@ -1,43 +1,46 @@
-// ~/Projects/movfoo/app/quiz/config/foodQuizSteps.ts
-import type { Question } from "@/components/quiz/types";
-
-export const foodQuizSteps: Question[] = [
+export const foodQuizSteps = [
   {
-    id: "diet",
-    label: "Do you follow a dietary preference?",
-    type: "single",
-    apiField: "diet",
+    id: "with_cuisines",
+    type: "multi-select",
+    question: "Which cuisines do you love?",
     options: [
-      { value: "vegetarian", label: "Vegetarian" },
-      { value: "vegan", label: "Vegan" },
-      { value: "pescetarian", label: "Pescetarian" },
-      { value: "gluten free", label: "Gluten Free" },
-      { value: "none", label: "No Preference" },
-    ],
-  },
-  {
-    id: "cuisine",
-    label: "Pick a cuisine",
-    type: "single",
-    apiField: "cuisine",
-    options: [
-      { value: "mexican", label: "Mexican" },
       { value: "italian", label: "Italian" },
-      { value: "thai", label: "Thai" },
+      { value: "mexican", label: "Mexican" },
       { value: "indian", label: "Indian" },
-      { value: "american", label: "American" },
+      { value: "thai", label: "Thai" },
+      { value: "japanese", label: "Japanese" },
     ],
   },
   {
-    id: "prep_time",
-    label: "Prep time (in minutes)",
-    type: "range",
-    apiField: "maxReadyTime",
-    rangeConfig: {
-      min: 10,
-      max: 60,
-      step: 5,
-    },
+    id: "diet_type",
+    type: "single-select",
+    question: "Do you follow a specific diet?",
+    options: [
+      { value: "none", label: "No preference" },
+      { value: "vegan", label: "Vegan" },
+      { value: "vegetarian", label: "Vegetarian" },
+      { value: "gluten_free", label: "Gluten-Free" },
+    ],
+  },
+  {
+    id: "spice_level",
+    type: "single-select",
+    question: "Preferred spice level?",
+    options: [
+      { value: "mild", label: "Mild" },
+      { value: "medium", label: "Medium" },
+      { value: "hot", label: "Hot" },
+    ],
+  },
+  {
+    id: "audience",
+    type: "single-select",
+    question: "Who’s eating?",
+    options: [
+      { value: "all", label: "Everyone" },
+      { value: "kids", label: "Kids" },
+      { value: "adults", label: "Adults" },
+    ],
   },
 ];
 
