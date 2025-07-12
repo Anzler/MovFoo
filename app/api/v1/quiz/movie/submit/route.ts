@@ -1,4 +1,5 @@
 // ~/app/api/v1/quiz/movie/submit/route.ts
+
 import { NextResponse } from "next/server";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
@@ -17,9 +18,9 @@ export async function POST(req: Request) {
 
     console.log("📥 Received answer:", { sessionId, questionKey, answerValue });
 
-    // Step 1: Get existing quiz session or create a new one
-    let answers: Record<string, string> = {};
+    // Step 1: Get or create a quiz session
     let updatedSessionId = sessionId;
+    let answers: Record<string, string> = {};
 
     if (sessionId) {
       const { data, error } = await supabase
@@ -29,8 +30,7 @@ export async function POST(req: Request) {
         .single();
 
       if (error) throw error;
-
-      answers = data.answers || {};
+      answers = (data.answers ?? {}) as Record<string, string>;
     } else {
       const { data, error } = await supabase
         .from("quiz_sessions")
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       updatedSessionId = data.id;
     }
 
-    // Step 2: Update answers and persist
+    // Step 2: Update the answers
     answers[questionKey] = answerValue;
 
     const { error: updateError } = await supabase
@@ -52,41 +52,37 @@ export async function POST(req: Request) {
 
     if (updateError) throw updateError;
 
-    // Step 3: Build Supabase filter query from all answers
-    const query = supabase.from("movies").select("*").limit(6);
-
-    // Optional: only show popular, recent movies
-    query.order("popularity", { ascending: false });
+    // Step 3: Build the dynamic Supabase query
+    let query = supabase.from("movies").select("*").limit(6).order("popularity", { ascending: false });
 
     if (answers.genre) {
-      query.contains("genres", [answers.genre]);
+      query = query.contains("genres", [answers.genre]);
     }
 
     if (answers.release_year) {
-      const yearNum = parseInt(answers.release_year);
-      if (!isNaN(yearNum)) {
-        query.gte("release_year", yearNum);
+      const year = parseInt(answers.release_year);
+      if (!isNaN(year)) {
+        query = query.gte("release_year", year);
       }
     }
 
     if (answers.original_language) {
-      query.eq("original_language", answers.original_language);
+      query = query.eq("original_language", answers.original_language);
     }
 
     if (answers.vote_average_gte) {
       const rating = parseFloat(answers.vote_average_gte);
       if (!isNaN(rating)) {
-        query.gte("vote_average", rating);
+        query = query.gte("vote_average", rating);
       }
     }
 
     if (answers.with_watch_providers) {
-      // This assumes your table has streaming_platforms: text[]
-      query.contains("streaming_platforms", [answers.with_watch_providers]);
+      query = query.contains("streaming_platforms", [answers.with_watch_providers]);
     }
 
     if (answers.audience) {
-      query.eq("audience", answers.audience);
+      query = query.eq("audience", answers.audience);
     }
 
     const { data: results, error: fetchError } = await query;
