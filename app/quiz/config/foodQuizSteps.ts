@@ -1,7 +1,9 @@
-export const foodQuizSteps = [
+import type { QuizQuestion } from '@/components/quiz/types';
+
+export const foodQuizSteps: QuizQuestion[] = [
   {
     id: "with_cuisines",
-    type: "multi-select",
+    type: "multi-select",     // literal, matches QuizQuestion
     question: "Which cuisines do you love?",
     options: [
       { value: "italian", label: "Italian" },
@@ -13,7 +15,7 @@ export const foodQuizSteps = [
   },
   {
     id: "diet_type",
-    type: "single-select",
+    type: "single-select",    // literal, matches QuizQuestion
     question: "Do you follow a specific diet?",
     options: [
       { value: "none", label: "No preference" },
