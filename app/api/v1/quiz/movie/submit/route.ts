@@ -1,101 +1,63 @@
 // ~/Projects/movfoo/app/api/v1/quiz/movie/submit/route.ts
+import { NextResponse } from "next/server";
+import axios from "axios";
 
-import { NextRequest, NextResponse } from "next/server";
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = "https://api.themoviedb.org/3/discover/movie"; // we assume movies only
 
-const TMDB_API_URL = "https://api.themoviedb.org/3/discover/movie";
-const TMDB_API_KEY = process.env.TMDB_API_KEY!;
-
-function mapQuizAnswersToQuery(answers: Record<string, string | string[] | number>) {
-  const params = new URLSearchParams();
-
-  // Always required
-  params.set("api_key", TMDB_API_KEY);
-  params.set("language", "en-US");
-  params.set("include_adult", "false");
-  params.set("include_video", "false");
-  params.set("sort_by", "popularity.desc");
-
-  // Map known filters
-  if (answers.with_genres) {
-    const genre = Array.isArray(answers.with_genres)
-      ? answers.with_genres.join(",")
-      : answers.with_genres;
-    params.set("with_genres", genre);
-  }
-
-  if (answers.primary_release_year) {
-    params.set("primary_release_year", String(answers.primary_release_year));
-  }
-
-  if (answers.with_original_language) {
-    params.set("with_original_language", String(answers.with_original_language));
-  }
-
-  if (answers["vote_average.gte"]) {
-    params.set("vote_average.gte", String(answers["vote_average.gte"]));
-  }
-
-  if (answers.with_watch_providers) {
-    const providers = Array.isArray(answers.with_watch_providers)
-      ? answers.with_watch_providers.join("|")
-      : answers.with_watch_providers;
-    params.set("with_watch_providers", providers);
-    params.set("watch_region", "US"); // Or change to your user's region
-  }
-
-  if (answers.media_type && answers.media_type === "tv") {
-    // Optional: redirect to /discover/tv if media_type is "tv"
-    params.set("media_type", "tv");
-  }
-
-  return params.toString();
-}
-
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const { sessionId, questionKey, answerValue } = await req.json();
+    const { sessionId, questionKey, answerValue } = await request.json();
 
-    // Grab current answers from localStorage or Supabase (mocked here)
-    const stored = req.cookies.get("quiz_answers_movie")?.value ?? "{}";
-    const answers = JSON.parse(stored);
+    // Optionally store the answer
+    console.log("📥 Movie quiz answer received:", { sessionId, questionKey, answerValue });
 
-    // Merge new answer
-    const updatedAnswers = {
-      ...answers,
-      [questionKey]: answerValue,
+    // Fetch stored answers from localStorage is handled on client side, so here we mock it:
+    const filters = {
+      media_type: "movie",
+      genre: ["28", "35"], // Example genres
+      decade: "2000",
+      language: "en",
+      rating: 7.5,
+      streaming: ["8", "9"],
     };
 
-    // Construct TMDB query string
-    const queryString = mapQuizAnswersToQuery(updatedAnswers);
-    const url = `${TMDB_API_URL}?${queryString}`;
+    const params = new URLSearchParams({
+      api_key: TMDB_API_KEY!,
+      language: "en-US",
+      sort_by: "popularity.desc",
+      with_genres: filters.genre.join(","),
+      primary_release_year: filters.decade,
+      with_original_language: filters.language,
+      vote_average_gte: filters.rating.toString(),
+      with_watch_providers: filters.streaming.join(","),
+      watch_region: "US",
+    });
 
-    const response = await fetch(url);
-    const data = await response.json();
+    const tmdbRes = await axios.get(TMDB_BASE_URL, { params });
 
-    const results = (data.results || []).slice(0, 12).map((movie: any) => ({
-      id: movie.id,
-      title: movie.title,
-      poster_url: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : null,
-      synopsis: movie.overview,
-      rating: movie.vote_average,
+    const results = (tmdbRes.data.results || []).slice(0, 10).map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      poster_url: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+      synopsis: item.overview,
+      rating: item.vote_average,
     }));
 
     return NextResponse.json({
       sessionId: sessionId || generateSessionId(),
       results,
     });
-  } catch (err) {
-    console.error("❌ TMDB integration failed:", err);
+  } catch (error) {
+    console.error("❌ TMDB fetch failed:", error);
     return NextResponse.json(
-      { error: "Failed to fetch from TMDB" },
+      { error: "TMDB request failed" },
       { status: 500 }
     );
   }
 }
 
 function generateSessionId(): string {
-  return `sess_${Math.random().toString(36).substring(2, 10)}`;
+  return `sess_${Math.random().toString(36).slice(2)}`;
 }
 
