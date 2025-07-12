@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       allAnswers = {},
     }: QuizAnswerPayload = await req.json();
 
-    console.log("📥 Received Food answer:", { sessionId, questionKey, answerValue });
+    console.log("📥 Received TV answer:", { sessionId, questionKey, answerValue });
 
     let updatedSessionId = sessionId;
     let answers: Record<string, any> = {};
@@ -62,24 +62,37 @@ export async function POST(req: Request) {
     if (updateError) throw updateError;
 
     let query = supabase
-      .from("foods")
+      .from("tv_shows")
       .select("*")
       .limit(6)
       .order("popularity", { ascending: false });
 
-    const cuisines = answers.with_cuisines;
-    if (Array.isArray(cuisines)) {
-      query = query.overlaps("cuisines", cuisines);
-    } else if (cuisines) {
-      query = query.contains("cuisines", [cuisines]);
+    const genres = answers.with_genres;
+    if (Array.isArray(genres)) {
+      query = query.overlaps("genres", genres);
+    } else if (genres) {
+      query = query.contains("genres", [genres]);
     }
 
-    if (answers.diet_type) {
-      query = query.eq("diet_type", answers.diet_type);
+    const year = parseInt(answers.primary_release_year);
+    if (!isNaN(year)) {
+      query = query.gte("release_year", year);
     }
 
-    if (answers.spice_level) {
-      query = query.eq("spice_level", answers.spice_level);
+    if (answers.with_original_language) {
+      query = query.eq("original_language", answers.with_original_language);
+    }
+
+    const rating = parseFloat(answers["vote_average.gte"]);
+    if (!isNaN(rating)) {
+      query = query.gte("vote_average", rating);
+    }
+
+    const providers = answers.with_watch_providers;
+    if (Array.isArray(providers)) {
+      query = query.overlaps("streaming_platforms", providers);
+    } else if (providers) {
+      query = query.contains("streaming_platforms", [providers]);
     }
 
     if (answers.audience) {
@@ -91,17 +104,18 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       sessionId: updatedSessionId,
-      results: results.map((food) => ({
-        id: food.id,
-        title: food.name,
-        image_url: food.image_url,
-        description: food.description,
+      results: results.map((show) => ({
+        id: show.id,
+        title: show.title,
+        poster_url: show.poster_url,
+        synopsis: show.overview || show.description,
+        rating: show.vote_average || show.rating,
       })),
     });
   } catch (err) {
-    console.error("❌ Food quiz error:", err);
+    console.error("❌ TV quiz error:", err);
     return NextResponse.json(
-      { error: "Failed to fetch food recommendations." },
+      { error: "Failed to fetch TV recommendations." },
       { status: 500 }
     );
   }
