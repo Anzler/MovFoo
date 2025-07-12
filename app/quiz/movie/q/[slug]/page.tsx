@@ -1,4 +1,4 @@
-// ~/Projects/movfoo/app/quiz/movie/q/[slug]/page.tsx
+// ~/app/quiz/movie/q/[slug]/page.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
@@ -7,7 +7,8 @@ import { movieQuizSteps } from '@/app/quiz/config/movieQuizSteps';
 
 export default function MovieQuizStepPage() {
   const params = useParams();
-  const slug: string =
+
+  const slug =
     typeof params.slug === 'string'
       ? params.slug
       : Array.isArray(params.slug)
