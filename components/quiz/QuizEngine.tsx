@@ -59,7 +59,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     setSubmitError(null);
 
     try {
-      const res = await axios.post(`/v1/quiz/${quizType}/submit`, {
+      const res = await axios.post(`/api/v1/quiz/${quizType}/submit`, {
         sessionId,
         questionKey: question.id,
         answerValue: value,

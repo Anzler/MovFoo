@@ -1,0 +1,86 @@
+.
+├── app
+│   ├── api
+│   │   └── v1
+│   │       └── quiz
+│   ├── auth
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── movies
+│   │   ├── quiz
+│   │   │   └── page.tsx
+│   │   └── watchlist
+│   │       └── page.tsx
+│   ├── page.tsx
+│   └── quiz
+│       ├── config
+│       │   ├── foodQuizSteps.ts
+│       │   ├── movieQuizSteps.ts
+│       │   ├── pairingQuizSteps.ts
+│       │   └── tvQuizSteps.ts
+│       ├── food
+│       │   ├── page.tsx
+│       │   ├── q
+│       │   ├── results
+│       │   ├── spoonacular-surprise
+│       │   ├── surprise
+│       │   └── surprise.tsx
+│       ├── layout.tsx
+│       ├── movie
+│       │   ├── page.tsx
+│       │   ├── q
+│       │   ├── results
+│       │   └── surprise
+│       ├── page.tsx
+│       ├── pairing
+│       │   ├── page.tsx
+│       │   ├── q
+│       │   ├── results
+│       │   └── surprise.tsx
+│       ├── q
+│       │   └── [slug]
+│       ├── results
+│       │   └── page.tsx
+│       └── tv
+│           ├── page.tsx
+│           └── q
+├── backend
+│   ├── components
+│   ├── db
+│   │   └── migrations
+│   │       └── 20240707_populate_quiz_columns.sql
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md\012
+│   └── src
+│       ├── db.js
+│       ├── index.js
+│       └── routes
+│           └── v1
+├── components
+│   ├── Navbar.tsx
+│   ├── quiz
+│   │   ├── QuizEngine.tsx
+│   │   ├── QuizStart.tsx
+│   │   ├── QuizStepper.tsx
+│   │   ├── ResultsInner.tsx
+│   │   └── types.ts
+│   ├── StartButtons.tsx
+│   └── SurpriseButton.tsx
+├── lib
+│   ├── api.ts
+│   ├── supabaseClient.ts
+│   └── supabase.types.ts
+├── next.config.js
+├── next-env.d.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── project-tree.txt
+├── render.yaml
+├── tailwind.config.js
+├── tsconfig.json
+└── tsconfig.tsbuildinfo
+
+38 directories, 46 files
