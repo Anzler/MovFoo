@@ -1,9 +1,11 @@
-import type { QuizQuestion } from '@/components/quiz/types';
+// app/quiz/config/foodQuizSteps.ts
+import type { Question } from '@/components/quiz/types';
 
-export const foodQuizSteps: QuizQuestion[] = [
+export const foodQuizSteps: Question[] = [
   {
     id: "with_cuisines",
-    type: "multi-select",     // literal, matches QuizQuestion
+    apiField: "with_cuisines",
+    type: "multi-select",     // literal matches Question.type
     question: "Which cuisines do you love?",
     options: [
       { value: "italian", label: "Italian" },
@@ -15,7 +17,8 @@ export const foodQuizSteps: QuizQuestion[] = [
   },
   {
     id: "diet_type",
-    type: "single-select",    // literal, matches QuizQuestion
+    apiField: "diet_type",
+    type: "single-select",
     question: "Do you follow a specific diet?",
     options: [
       { value: "none", label: "No preference" },
@@ -26,6 +29,7 @@ export const foodQuizSteps: QuizQuestion[] = [
   },
   {
     id: "spice_level",
+    apiField: "spice_level",
     type: "single-select",
     question: "Preferred spice level?",
     options: [
@@ -36,6 +40,7 @@ export const foodQuizSteps: QuizQuestion[] = [
   },
   {
     id: "audience",
+    apiField: "audience",
     type: "single-select",
     question: "Who’s eating?",
     options: [
