@@ -1,5 +1,4 @@
 // ~/app/api/v1/quiz/movie/submit/route.ts
-
 import { NextResponse } from "next/server";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
@@ -8,19 +7,24 @@ import type { Database } from "@/lib/supabase.types";
 type QuizAnswerPayload = {
   sessionId?: string;
   questionKey: string;
-  answerValue: string;
+  answerValue: string | string[]; // ✅ support multi-select
+  allAnswers?: Record<string, any>; // ✅ for TMDB or Supabase
 };
 
 export async function POST(req: Request) {
   try {
     const supabase = createServerComponentClient<Database>({ cookies });
-    const { sessionId, questionKey, answerValue }: QuizAnswerPayload = await req.json();
+    const {
+      sessionId,
+      questionKey,
+      answerValue,
+      allAnswers = {},
+    }: QuizAnswerPayload = await req.json();
 
     console.log("📥 Received answer:", { sessionId, questionKey, answerValue });
 
-    // Step 1: Get or create a quiz session
     let updatedSessionId = sessionId;
-    let answers: Record<string, string> = {};
+    let answers: Record<string, any> = {};
 
     if (sessionId) {
       const { data, error } = await supabase
@@ -28,65 +32,64 @@ export async function POST(req: Request) {
         .select("id, answers")
         .eq("id", sessionId)
         .single();
-
       if (error) throw error;
-      answers = (data.answers ?? {}) as Record<string, string>;
+      answers = data.answers ?? {};
     } else {
       const { data, error } = await supabase
         .from("quiz_sessions")
         .insert({ answers: {} })
         .select("id")
         .single();
-
       if (error) throw error;
       updatedSessionId = data.id;
     }
 
-    // Step 2: Update the answers
+    // Merge in latest answer
     answers[questionKey] = answerValue;
 
     const { error: updateError } = await supabase
       .from("quiz_sessions")
       .update({ answers })
-      .eq("id", updatedSessionId!); // <-- Assert it's defined
-
+      .eq("id", updatedSessionId!);
     if (updateError) throw updateError;
 
-    // Step 3: Build the dynamic Supabase query
+    // === Build Supabase query ===
     let query = supabase.from("movies").select("*").limit(6).order("popularity", { ascending: false });
 
-    if (answers.genre) {
-      query = query.contains("genres", [answers.genre]);
+    // Genre
+    const genres = answers.with_genres;
+    if (Array.isArray(genres)) {
+      query = query.overlaps("genres", genres);
+    } else if (genres) {
+      query = query.contains("genres", [genres]);
     }
 
-    if (answers.release_year) {
-      const year = parseInt(answers.release_year);
-      if (!isNaN(year)) {
-        query = query.gte("release_year", year);
-      }
+    // Year
+    const year = parseInt(answers.primary_release_year);
+    if (!isNaN(year)) {
+      query = query.gte("release_year", year);
     }
 
-    if (answers.original_language) {
-      query = query.eq("original_language", answers.original_language);
+    // Language
+    if (answers.with_original_language) {
+      query = query.eq("original_language", answers.with_original_language);
     }
 
-    if (answers.vote_average_gte) {
-      const rating = parseFloat(answers.vote_average_gte);
-      if (!isNaN(rating)) {
-        query = query.gte("vote_average", rating);
-      }
+    // Rating
+    const rating = parseFloat(answers["vote_average.gte"]);
+    if (!isNaN(rating)) {
+      query = query.gte("vote_average", rating);
     }
 
-    if (answers.with_watch_providers) {
-      query = query.contains("streaming_platforms", [answers.with_watch_providers]);
-    }
-
-    if (answers.audience) {
-      query = query.eq("audience", answers.audience);
+    // Providers
+    const providers = answers.with_watch_providers;
+    if (Array.isArray(providers)) {
+      query = query.overlaps("streaming_platforms", providers);
+    } else if (providers) {
+      query = query.contains("streaming_platforms", [providers]);
     }
 
     const { data: results, error: fetchError } = await query;
-
     if (fetchError) throw fetchError;
 
     return NextResponse.json({
