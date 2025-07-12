@@ -3,8 +3,8 @@ import type { Question } from '@/components/quiz/types';
 export const pairingQuizSteps: Question[] = [
   {
     id: "with_genres",
-    type: "multi",             // corrected from "multi-select"
-    question: "Which pairings are you interested in?",
+    type: "multi",             // was "multi-select"
+    label: "Which pairings are you interested in?",  // renamed from `question`
     options: [
       { value: "wine", label: "Wine" },
       { value: "beer", label: "Beer" },
@@ -14,8 +14,8 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "with_primary_flavor",
-    type: "single",            // corrected from "single-select"
-    question: "Primary flavor profile?",
+    type: "single",            // was "single-select"
+    label: "Primary flavor profile?",                // renamed
     options: [
       { value: "sweet", label: "Sweet" },
       { value: "savory", label: "Savory" },
@@ -25,8 +25,8 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "with_food",
-    type: "multi",             // corrected from "multi-select"
-    question: "Which foods will you be pairing?",
+    type: "multi",             // was "multi-select"
+    label: "Which foods will you be pairing?",        // renamed
     options: [
       { value: "cheese", label: "Cheese" },
       { value: "chocolate", label: "Chocolate" },
@@ -36,8 +36,8 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "audience",
-    type: "single",            // corrected from "single-select"
-    question: "Who's enjoying the pairing?",
+    type: "single",            // was "single-select"
+    label: "Who's enjoying the pairing?",             // renamed
     options: [
       { value: "all", label: "Everyone" },
       { value: "kids", label: "Kids" },
