@@ -1,79 +1,114 @@
+// ~/app/api/v1/quiz/movie/submit/route.ts
 import { NextResponse } from "next/server";
-import axios from "axios";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import type { Database } from "@/lib/supabase.types";
 
-const TMDB_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+type QuizAnswerPayload = {
+  sessionId?: string;
+  questionKey: string;
+  answerValue: string;
+};
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { sessionId, questionKey, answerValue, allAnswers } = await request.json();
+    const supabase = createServerComponentClient<Database>({ cookies });
+    const { sessionId, questionKey, answerValue }: QuizAnswerPayload = await req.json();
 
-    console.log("📥 Quiz input received:", {
-      sessionId,
-      questionKey,
-      answerValue,
-      allAnswers,
-    });
+    console.log("📥 Received answer:", { sessionId, questionKey, answerValue });
 
-    if (!TMDB_API_KEY) {
-      throw new Error("❌ TMDB_API_KEY is missing from environment");
+    // Step 1: Get existing quiz session or create a new one
+    let answers: Record<string, string> = {};
+    let updatedSessionId = sessionId;
+
+    if (sessionId) {
+      const { data, error } = await supabase
+        .from("quiz_sessions")
+        .select("id, answers")
+        .eq("id", sessionId)
+        .single();
+
+      if (error) throw error;
+
+      answers = data.answers || {};
+    } else {
+      const { data, error } = await supabase
+        .from("quiz_sessions")
+        .insert({ answers: {} })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+      updatedSessionId = data.id;
     }
 
-    const queryParams = buildQueryParams(allAnswers);
-    console.log("🎬 TMDB query params:", queryParams);
+    // Step 2: Update answers and persist
+    answers[questionKey] = answerValue;
 
-    const response = await axios.get(TMDB_BASE_URL, {
-      headers: {
-        Authorization: `Bearer ${TMDB_API_KEY}`,
-      },
-      params: queryParams,
-    });
+    const { error: updateError } = await supabase
+      .from("quiz_sessions")
+      .update({ answers })
+      .eq("id", updatedSessionId);
 
-    const tmdbResults = response.data.results?.slice(0, 6) || [];
+    if (updateError) throw updateError;
 
-    const results = tmdbResults.map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      poster_url: item.poster_path
-        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-        : null,
-      synopsis: item.overview,
-      rating: item.vote_average,
-    }));
+    // Step 3: Build Supabase filter query from all answers
+    const query = supabase.from("movies").select("*").limit(6);
+
+    // Optional: only show popular, recent movies
+    query.order("popularity", { ascending: false });
+
+    if (answers.genre) {
+      query.contains("genres", [answers.genre]);
+    }
+
+    if (answers.release_year) {
+      const yearNum = parseInt(answers.release_year);
+      if (!isNaN(yearNum)) {
+        query.gte("release_year", yearNum);
+      }
+    }
+
+    if (answers.original_language) {
+      query.eq("original_language", answers.original_language);
+    }
+
+    if (answers.vote_average_gte) {
+      const rating = parseFloat(answers.vote_average_gte);
+      if (!isNaN(rating)) {
+        query.gte("vote_average", rating);
+      }
+    }
+
+    if (answers.with_watch_providers) {
+      // This assumes your table has streaming_platforms: text[]
+      query.contains("streaming_platforms", [answers.with_watch_providers]);
+    }
+
+    if (answers.audience) {
+      query.eq("audience", answers.audience);
+    }
+
+    const { data: results, error: fetchError } = await query;
+
+    if (fetchError) throw fetchError;
 
     return NextResponse.json({
-      sessionId: sessionId || generateSessionId(),
-      results,
+      sessionId: updatedSessionId,
+      results: results.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        poster_url: movie.poster_url,
+        synopsis: movie.overview || movie.description,
+        rating: movie.vote_average || movie.rating,
+      })),
     });
-  } catch (error) {
-    console.error("❌ TMDB fetch failed:", error);
+  } catch (err) {
+    console.error("❌ Supabase query error:", err);
     return NextResponse.json(
       { error: "Failed to fetch movie recommendations." },
       { status: 500 }
     );
   }
-}
-
-function buildQueryParams(answers: Record<string, any>) {
-  const params: Record<string, any> = {
-    language: "en-US",
-    sort_by: answers.sort_by || "popularity.desc",
-    include_adult: false,
-    page: 1,
-  };
-
-  if (answers.with_genres) params.with_genres = answers.with_genres;
-  if (answers.with_original_language) params.with_original_language = answers.with_original_language;
-  if (answers.vote_average_gte) params["vote_average.gte"] = answers.vote_average_gte;
-  if (answers.with_watch_providers) {
-    params.with_watch_providers = answers.with_watch_providers;
-    params.watch_region = "US"; // required for provider filtering
-  }
-
-  return params;
-}
-
-function generateSessionId(): string {
-  return `sess_${Math.random().toString(36).substring(2, 10)}`;
 }
 
