@@ -1,13 +1,11 @@
-// ~/Projects/movfoo/components/quiz/QuizEngine.tsx
 'use client';
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
-// Re-export for convenience
-export type { Question } from "./types";
-import type { Question } from "./types";
+export type { Question } from './types';
+import type { Question } from './types';
 
 type ResultItem = {
   title: string;
@@ -20,12 +18,16 @@ type ResultItem = {
 };
 
 type Props = {
-  quizType: "movie" | "food" | "pairing" | "tv";
+  quizType: 'movie' | 'food' | 'pairing' | 'tv';
   questions: Question[];
   autoAdvanceToNextSlug?: string;
 };
 
-export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug }: Props) {
+export default function QuizEngine({
+  quizType,
+  questions,
+  autoAdvanceToNextSlug,
+}: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -52,9 +54,9 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   const question = questions[step];
 
   const saveAnswer = async (value: any) => {
-    const next = { ...answers, [question.id]: value };
-    setAnswers(next);
-    localStorage.setItem(storageKey, JSON.stringify(next));
+    const updatedAnswers = { ...answers, [question.id]: value };
+    setAnswers(updatedAnswers);
+    localStorage.setItem(storageKey, JSON.stringify(updatedAnswers));
     setLoading(true);
     setSubmitError(null);
 
@@ -63,6 +65,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
         sessionId,
         questionKey: question.id,
         answerValue: value,
+        allAnswers: updatedAnswers,
       });
 
       setSessionId(res.data.sessionId);
@@ -78,8 +81,8 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
         setResults(res.data.results);
       }
     } catch (err) {
-      console.error("Quiz submit failed", err);
-      setSubmitError("There was an issue submitting your answer. Please try again.");
+      console.error('Quiz submit failed', err);
+      setSubmitError('There was an issue submitting your answer. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,7 +96,11 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
           {results.map((item, i) => (
             <div key={i} className="p-4 border rounded-lg shadow">
               {item.poster_url && (
-                <img src={item.poster_url} alt={item.title || item.name} className="w-full h-auto rounded" />
+                <img
+                  src={item.poster_url}
+                  alt={item.title || item.name}
+                  className="w-full h-auto rounded"
+                />
               )}
               <h3 className="text-lg font-semibold mt-2">
                 {item.title || item.name}
@@ -104,14 +111,10 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
                 </p>
               )}
               {item.rating && (
-                <p className="text-xs text-yellow-600 mt-1">
-                  ⭐ Rating: {item.rating}/10
-                </p>
+                <p className="text-xs text-yellow-600 mt-1">⭐ {item.rating}/10</p>
               )}
               {item.prep_time && (
-                <p className="text-xs text-teal-600 mt-1">
-                  ⏱️ Prep Time: {item.prep_time}
-                </p>
+                <p className="text-xs text-teal-600 mt-1">⏱️ {item.prep_time}</p>
               )}
             </div>
           ))}
@@ -121,7 +124,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
   }
 
   const renderField = () => {
-    if (question.type === "single" && question.options) {
+    if (question.type === 'single' && question.options) {
       return (
         <div className="grid gap-4">
           {question.options.map((opt) => (
@@ -138,7 +141,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
       );
     }
 
-    if (question.type === "multi" && question.options) {
+    if (question.type === 'multi' && question.options) {
       const selected: string[] = answers[question.id] || [];
       const toggle = (value: string) => {
         const next = selected.includes(value)
@@ -154,7 +157,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
               key={opt.value}
               onClick={() => toggle(opt.value)}
               className={`w-full py-3 px-4 border rounded-lg text-left ${
-                selected.includes(opt.value) ? "bg-blue-100" : "bg-white"
+                selected.includes(opt.value) ? 'bg-blue-100' : 'bg-white'
               }`}
             >
               {opt.label}
@@ -164,7 +167,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
       );
     }
 
-    if (question.type === "range" && question.rangeConfig) {
+    if (question.type === 'range' && question.rangeConfig) {
       const value = answers[question.id] ?? question.rangeConfig.min;
       return (
         <div className="text-center">
@@ -189,9 +192,7 @@ export default function QuizEngine({ quizType, questions, autoAdvanceToNextSlug 
     <div className="max-w-xl mx-auto mt-10">
       <h2 className="text-xl font-bold mb-4">{question.label}</h2>
       {renderField()}
-      {submitError && (
-        <p className="text-red-500 text-sm mt-4">{submitError}</p>
-      )}
+      {submitError && <p className="text-red-500 text-sm mt-4">{submitError}</p>}
       <div className="text-sm text-gray-500 mt-6">
         Question {step + 1} of {questions.length}
       </div>

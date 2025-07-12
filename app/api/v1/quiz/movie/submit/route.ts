@@ -1,44 +1,44 @@
-// ~/Projects/movfoo/app/api/v1/quiz/movie/submit/route.ts
 import { NextResponse } from "next/server";
 import axios from "axios";
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3/discover/movie";
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 export async function POST(request: Request) {
   try {
-    const { sessionId, questionKey, answerValue } = await request.json();
+    const { sessionId, questionKey, answerValue, allAnswers } = await request.json();
 
-    console.log("📥 Received movie quiz answer:", {
+    console.log("📥 Quiz input received:", {
       sessionId,
       questionKey,
       answerValue,
+      allAnswers,
     });
 
-    // Load previous answers from somewhere (if stored)
-    // For now, we just pass this single one
-    const filters = { [questionKey]: answerValue };
+    if (!TMDB_API_KEY) {
+      throw new Error("❌ TMDB_API_KEY is missing from environment");
+    }
 
-    const query = buildQueryFromAnswers(filters);
+    const queryParams = buildQueryParams(allAnswers);
+    console.log("🎬 TMDB query params:", queryParams);
 
-    const { data } = await axios.get(TMDB_BASE_URL, {
-      params: {
-        api_key: TMDB_API_KEY,
-        language: "en-US",
-        sort_by: "popularity.desc",
-        page: 1,
-        ...query,
+    const response = await axios.get(TMDB_BASE_URL, {
+      headers: {
+        Authorization: `Bearer ${TMDB_API_KEY}`,
       },
+      params: queryParams,
     });
 
-    const results = (data.results || []).map((movie: any) => ({
-      id: movie.id,
-      title: movie.title,
-      synopsis: movie.overview,
-      poster_url: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    const tmdbResults = response.data.results?.slice(0, 6) || [];
+
+    const results = tmdbResults.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      poster_url: item.poster_path
+        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
         : null,
-      rating: movie.vote_average,
+      synopsis: item.overview,
+      rating: item.vote_average,
     }));
 
     return NextResponse.json({
@@ -46,42 +46,34 @@ export async function POST(request: Request) {
       results,
     });
   } catch (error) {
-    console.error("❌ TMDB fetch failed", error);
-    return NextResponse.json({ error: "TMDB fetch failed" }, { status: 500 });
+    console.error("❌ TMDB fetch failed:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch movie recommendations." },
+      { status: 500 }
+    );
   }
 }
 
-function buildQueryFromAnswers(answers: Record<string, any>) {
-  const query: Record<string, any> = {};
+function buildQueryParams(answers: Record<string, any>) {
+  const params: Record<string, any> = {
+    language: "en-US",
+    sort_by: answers.sort_by || "popularity.desc",
+    include_adult: false,
+    page: 1,
+  };
 
-  if (answers.with_genres || answers.genre) {
-    query.with_genres = answers.with_genres || answers.genre;
+  if (answers.with_genres) params.with_genres = answers.with_genres;
+  if (answers.with_original_language) params.with_original_language = answers.with_original_language;
+  if (answers.vote_average_gte) params["vote_average.gte"] = answers.vote_average_gte;
+  if (answers.with_watch_providers) {
+    params.with_watch_providers = answers.with_watch_providers;
+    params.watch_region = "US"; // required for provider filtering
   }
 
-  if (answers["vote_average.gte"] || answers.rating) {
-    query["vote_average.gte"] = answers["vote_average.gte"] || answers.rating;
-  }
-
-  if (answers.primary_release_year || answers.decade) {
-    query.primary_release_year =
-      answers.primary_release_year || answers.decade;
-  }
-
-  if (answers.with_original_language || answers.language) {
-    query.with_original_language =
-      answers.with_original_language || answers.language;
-  }
-
-  if (answers.with_watch_providers || answers.streaming) {
-    query.with_watch_providers =
-      answers.with_watch_providers || answers.streaming;
-    query.watch_region = "US";
-  }
-
-  return query;
+  return params;
 }
 
 function generateSessionId(): string {
-  return `sess_${Math.random().toString(36).substr(2, 9)}`;
+  return `sess_${Math.random().toString(36).substring(2, 10)}`;
 }
 
