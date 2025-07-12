@@ -1,6 +1,6 @@
-import type { QuizQuestion } from '@/components/quiz/types';
+import type { Question } from '@/components/quiz/types';
 
-export const pairingQuizSteps: QuizQuestion[] = [
+export const pairingQuizSteps: Question[] = [
   {
     id: "with_genres",
     type: "multi-select",
