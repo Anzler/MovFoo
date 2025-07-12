@@ -11,7 +11,7 @@ export default function QuizStart() {
         <em>Surprise Me</em>&nbsp;whenever you want.
       </p>
       <button
-        onClick={() => router.push("/quiz/q/genre")}
+        onClick={() => router.push("/quiz/movie/q/media_type")}
         className="btn-primary"
       >
         Start&nbsp;Quiz
