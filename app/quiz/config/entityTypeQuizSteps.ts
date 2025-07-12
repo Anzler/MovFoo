@@ -1,7 +1,9 @@
-export const entityTypeQuizSteps = [
+import type { QuizQuestion } from '@/app/quiz/types';
+
+export const entityTypeQuizSteps: QuizQuestion[] = [
   {
     id: "entity_type",
-    type: "single-select",
+    type: "single-select",              // one of: "single-select" | "multi-select" | "slider"
     question: "What are we looking for?",
     options: [
       { value: "movie", label: "A Movie" },
