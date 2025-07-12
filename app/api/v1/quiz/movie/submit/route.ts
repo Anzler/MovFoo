@@ -13,6 +13,7 @@ type QuizAnswerPayload = {
 export async function POST(req: Request) {
   try {
     const supabase = createServerComponentClient<Database>({ cookies });
+
     const {
       sessionId,
       questionKey,
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       updatedSessionId = data.id;
     }
 
-    // Merge in latest answer
+    // Merge latest answer
     answers[questionKey] = answerValue;
 
     const { error: updateError } = await supabase
@@ -61,14 +62,16 @@ export async function POST(req: Request) {
 
     if (updateError) throw updateError;
 
-    // === Build Supabase movie query ===
+    // === Build Supabase query ===
     let query = supabase
       .from("movies")
       .select("*")
       .limit(6)
       .order("popularity", { ascending: false });
 
-    // Genres (multi or single)
+    // === Filtering logic ===
+
+    // Genres
     const genres = answers.with_genres;
     if (Array.isArray(genres)) {
       query = query.overlaps("genres", genres);
@@ -76,7 +79,7 @@ export async function POST(req: Request) {
       query = query.contains("genres", [genres]);
     }
 
-    // Decade / release year
+    // Release year
     const year = parseInt(answers.primary_release_year);
     if (!isNaN(year)) {
       query = query.gte("release_year", year);
@@ -87,13 +90,13 @@ export async function POST(req: Request) {
       query = query.eq("original_language", answers.with_original_language);
     }
 
-    // Rating threshold
+    // Rating
     const rating = parseFloat(answers["vote_average.gte"]);
     if (!isNaN(rating)) {
       query = query.gte("vote_average", rating);
     }
 
-    // Streaming providers (multi or single)
+    // Streaming providers
     const providers = answers.with_watch_providers;
     if (Array.isArray(providers)) {
       query = query.overlaps("streaming_platforms", providers);
@@ -101,7 +104,7 @@ export async function POST(req: Request) {
       query = query.contains("streaming_platforms", [providers]);
     }
 
-    // Audience (if present)
+    // Audience
     if (answers.audience) {
       query = query.eq("audience", answers.audience);
     }
