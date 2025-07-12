@@ -3,7 +3,7 @@ import type { Question } from '@/components/quiz/types';
 export const pairingQuizSteps: Question[] = [
   {
     id: "with_genres",
-    type: "multi-select",
+    type: "multi",             // corrected from "multi-select"
     question: "Which pairings are you interested in?",
     options: [
       { value: "wine", label: "Wine" },
@@ -14,7 +14,7 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "with_primary_flavor",
-    type: "single-select",
+    type: "single",            // corrected from "single-select"
     question: "Primary flavor profile?",
     options: [
       { value: "sweet", label: "Sweet" },
@@ -25,7 +25,7 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "with_food",
-    type: "multi-select",
+    type: "multi",             // corrected from "multi-select"
     question: "Which foods will you be pairing?",
     options: [
       { value: "cheese", label: "Cheese" },
@@ -36,7 +36,7 @@ export const pairingQuizSteps: Question[] = [
   },
   {
     id: "audience",
-    type: "single-select",
+    type: "single",            // corrected from "single-select"
     question: "Who's enjoying the pairing?",
     options: [
       { value: "all", label: "Everyone" },
