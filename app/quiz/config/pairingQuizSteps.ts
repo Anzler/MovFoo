@@ -1,40 +1,48 @@
-import type { Question } from "@/components/quiz/QuizEngine";
+import type { QuizQuestion } from '@/app/quiz/types';
 
-export const pairingQuizSteps: Question[] = [
+export const pairingQuizSteps: QuizQuestion[] = [
   {
-    id: "mood",
-    label: "What's the vibe tonight?",
-    type: "single",
-    apiField: "mood",
+    id: "with_genres",
+    type: "multi-select",
+    question: "Which pairings are you interested in?",
     options: [
-      { value: "relaxing", label: "Relaxing" },
-      { value: "funny", label: "Funny" },
-      { value: "emotional", label: "Emotional" },
-      { value: "intense", label: "Intense" }
-    ]
+      { value: "wine", label: "Wine" },
+      { value: "beer", label: "Beer" },
+      { value: "cider", label: "Cider" },
+      { value: "cocktail", label: "Cocktail" },
+    ],
   },
   {
-    id: "meal_type",
-    label: "What kind of meal pairs with your show?",
-    type: "single",
-    apiField: "type",
+    id: "with_primary_flavor",
+    type: "single-select",
+    question: "Primary flavor profile?",
     options: [
-      { value: "main course", label: "Main course" },
-      { value: "snack", label: "Snack" },
-      { value: "dessert", label: "Dessert" }
-    ]
+      { value: "sweet", label: "Sweet" },
+      { value: "savory", label: "Savory" },
+      { value: "spicy", label: "Spicy" },
+      { value: "bitter", label: "Bitter" },
+    ],
   },
   {
-    id: "genre",
-    label: "Pick a genre",
-    type: "multi",
-    apiField: "with_genres",
+    id: "with_food",
+    type: "multi-select",
+    question: "Which foods will you be pairing?",
     options: [
-      { value: "28", label: "Action" },
-      { value: "35", label: "Comedy" },
-      { value: "10749", label: "Romance" },
-      { value: "99", label: "Documentary" }
-    ]
-  }
+      { value: "cheese", label: "Cheese" },
+      { value: "chocolate", label: "Chocolate" },
+      { value: "seafood", label: "Seafood" },
+      { value: "red_meat", label: "Red Meat" },
+    ],
+  },
+  {
+    id: "audience",
+    type: "single-select",
+    question: "Who's enjoying the pairing?",
+    options: [
+      { value: "all", label: "Everyone" },
+      { value: "kids", label: "Kids" },
+      { value: "adults", label: "Adults" },
+    ],
+  },
 ];
 
