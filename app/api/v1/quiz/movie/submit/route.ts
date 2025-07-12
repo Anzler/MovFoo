@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const { error: updateError } = await supabase
       .from("quiz_sessions")
       .update({ answers })
-      .eq("id", updatedSessionId);
+      .eq("id", updatedSessionId!); // <-- Assert it's defined
 
     if (updateError) throw updateError;
 
