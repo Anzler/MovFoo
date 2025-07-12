@@ -1,4 +1,4 @@
-import type { QuizQuestion } from '@/app/quiz/types';
+import type { QuizQuestion } from '@/components/quiz/types';
 
 export const pairingQuizSteps: QuizQuestion[] = [
   {
