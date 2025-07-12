@@ -1,7 +1,8 @@
+// ~/Projects/movfoo/app/quiz/food/results/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 type Recipe = {
   name?: string;
@@ -12,75 +13,92 @@ type Recipe = {
 };
 
 export default function FoodResultsPage() {
-  const [results, setResults] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const storageKey = 'quiz_answers_food';
+  const fetchResults = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const answers = JSON.parse(localStorage.getItem("quiz_answers_food") || "{}");
+
+      const res = await axios.post("/api/v1/quiz/food/submit", {
+        answers,
+      });
+
+      setRecipes(res.data.results || []);
+    } catch (err) {
+      console.error("❌ Failed to fetch food results:", err);
+      setError("Failed to load food recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchResults = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const stored = localStorage.getItem(storageKey);
-        if (!stored) {
-          setError("No quiz answers found.");
-          setLoading(false);
-          return;
-        }
-
-        const answers = JSON.parse(stored);
-
-        const res = await axios.post('/api/v1/quiz/food/submit', {
-          answers,
-        });
-
-        setResults(res.data.results || []);
-      } catch (err) {
-        console.error("❌ Fetch error:", err);
-        setError("Failed to load recommendations.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchResults();
   }, []);
 
   if (loading) {
-    return <div className="text-center mt-20 text-gray-500">Loading recommendations...</div>;
+    return <div className="text-center mt-20 text-gray-500">Loading recommendations…</div>;
   }
 
   if (error) {
-    return <div className="text-center mt-20 text-red-600">{error}</div>;
+    return (
+      <div className="text-center mt-20 text-red-600">
+        {error}
+        <br />
+        <button
+          onClick={fetchResults}
+          className="mt-4 px-4 py-2 bg-green-100 border border-green-300 rounded hover:bg-green-200 font-semibold"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!recipes || recipes.length === 0) {
+    return (
+      <div className="text-center mt-20 text-gray-600">
+        No recommendations found.
+        <br />
+        <button
+          onClick={fetchResults}
+          className="mt-4 px-4 py-2 bg-green-100 border border-green-300 rounded hover:bg-green-200 font-semibold"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
+    <main className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold mb-6">🍽️ Your Food Matches</h1>
-      {results.length === 0 ? (
-        <p className="text-gray-500">No results found. Try adjusting your quiz filters.</p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {results.map((item, i) => (
-            <div key={i} className="rounded-lg shadow border p-3">
-              {item.poster_url && (
-                <img src={item.poster_url} alt={item.title || item.name} className="w-full rounded" />
-              )}
-              <h2 className="text-sm font-semibold mt-2">{item.title || item.name}</h2>
-              {item.prep_time && (
-                <p className="text-xs text-teal-600 mt-1">⏱️ {item.prep_time}</p>
-              )}
-              {item.description && (
-                <p className="text-xs text-gray-500 mt-1">{item.description}</p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {recipes.map((recipe, i) => (
+          <div key={i} className="p-4 border rounded shadow">
+            {recipe.poster_url && (
+              <img
+                src={recipe.poster_url}
+                alt={recipe.name || recipe.title}
+                className="w-full h-auto mb-3 rounded"
+              />
+            )}
+            <h2 className="text-lg font-semibold mb-1">{recipe.name || recipe.title}</h2>
+            {recipe.description && (
+              <p className="text-sm text-gray-600">{recipe.description}</p>
+            )}
+            {recipe.prep_time && (
+              <p className="text-xs text-teal-600 mt-1">⏱️ {recipe.prep_time}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }
 
