@@ -16,7 +16,6 @@ router.post('/filter', async (req, res) => {
 
   try {
     let query = supabase.from('movies').select('*').limit(25);
-    let query = supabase.from('movies').select('*');
 
     answers.forEach(({ field, value }) => {
       if (!field || !value || value === 'Any') return;
@@ -42,3 +41,49 @@ router.post('/filter', async (req, res) => {
             query = query.lt('runtime', 90);
           } else if (value.includes('2 hours')) {
             query = query.gte('runtime', 90).lte('runtime', 120);
+          } else if (value.includes('Epic')) {
+            query = query.gt('runtime', 120);
+          }
+          break;
+        }
+
+        case 'revenue': {
+          if (value.includes('Indie')) {
+            query = query.lt('revenue', 10000000);
+          } else if (value.includes('Blockbuster')) {
+            query = query.gt('revenue', 100000000);
+          }
+          break;
+        }
+
+        case 'is_franchise': {
+          if (value === 'Yes') {
+            query = query.eq(field, true);
+          } else if (value === 'No') {
+            query = query.eq(field, false);
+          }
+          break;
+        }
+
+        default: {
+          query = query.ilike(field, `%${value}%`);
+        }
+      }
+    });
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('[Supabase filter error]', error.message);
+      return res.status(500).json({ error: 'Supabase query failed' });
+    }
+
+    return res.json({ results: data || [] });
+  } catch (err) {
+    console.error('❌ Unexpected server error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+export default router;
+
