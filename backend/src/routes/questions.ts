@@ -1,5 +1,3 @@
-// backend/src/routes/questions.ts
-
 import express from 'express';
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
@@ -15,8 +13,7 @@ const pool = new Pool({
 // GET /api/questions
 router.get('/questions', async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `
+    const { rows } = await pool.query(`
       SELECT 
         id, 
         category, 
@@ -27,10 +24,10 @@ router.get('/questions', async (req, res) => {
         "order"
       FROM questions
       ORDER BY "order" ASC
-      `
-    );
+    `);
 
     if (!rows || rows.length === 0) {
+      console.warn('⚠️  /api/questions responded with empty dataset');
       return res.status(404).json({ message: 'No quiz questions found.' });
     }
 
@@ -46,7 +43,8 @@ router.get('/questions', async (req, res) => {
 
     res.json({ questions });
   } catch (error) {
-    console.error('❌ Error fetching questions:', error);
+    console.error('❌ Error fetching questions:', error.message);
+    console.error(error.stack);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
