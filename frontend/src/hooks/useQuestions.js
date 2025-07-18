@@ -1,4 +1,5 @@
-// Your entire hook definition goes here...
+import { useState, useEffect } from 'react';
+import { useDecades } from './useDecades';
 
 export function useQuestions() {
   const [questions, setQuestions] = useState([]);
@@ -23,6 +24,7 @@ export function useQuestions() {
         }
 
         const loaded = data.questions.map((q) => ({ ...q }));
+
         if (decades && decades.length > 0) {
           loaded.forEach((q) => {
             if (q.field === 'release_date') {
