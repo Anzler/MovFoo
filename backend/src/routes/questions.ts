@@ -2,6 +2,9 @@
 
 import express from 'express';
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 
@@ -13,12 +16,24 @@ const pool = new Pool({
 router.get('/questions', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, category, question_text, choices, field, input_type, "order"
-       FROM questions
-       ORDER BY "order" ASC`
+      `
+      SELECT 
+        id, 
+        category, 
+        question_text, 
+        choices, 
+        field, 
+        input_type, 
+        "order"
+      FROM questions
+      ORDER BY "order" ASC
+      `
     );
 
-    // Optionally map for frontend compatibility
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: 'No quiz questions found.' });
+    }
+
     const questions = rows.map((q) => ({
       id: q.id,
       category: q.category,
@@ -31,7 +46,7 @@ router.get('/questions', async (req, res) => {
 
     res.json({ questions });
   } catch (error) {
-    console.error('Error fetching questions:', error);
+    console.error('❌ Error fetching questions:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
