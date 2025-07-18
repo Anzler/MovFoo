@@ -13,7 +13,9 @@ const pool = new Pool({
 // GET /api/questions
 router.get('/questions', async (req, res) => {
   try {
-    const { rows } = await pool.query(`
+    console.log('📥 GET /api/questions called');
+
+    const query = `
       SELECT 
         id, 
         category, 
@@ -24,10 +26,13 @@ router.get('/questions', async (req, res) => {
         "order"
       FROM questions
       ORDER BY "order" ASC
-    `);
+    `;
+
+    const { rows } = await pool.query(query);
+    console.log(`✅ Retrieved ${rows.length} question(s) from database`);
 
     if (!rows || rows.length === 0) {
-      console.warn('⚠️  /api/questions responded with empty dataset');
+      console.warn('⚠️  No questions found in database');
       return res.status(404).json({ message: 'No quiz questions found.' });
     }
 
@@ -36,14 +41,14 @@ router.get('/questions', async (req, res) => {
       category: q.category,
       question_text: q.question_text,
       field: q.field,
-      choices: q.choices,
-      input_type: q.input_type,
+      choices: Array.isArray(q.choices) ? q.choices : [], // defensive fallback
+      input_type: q.input_type || 'radio',
       order: q.order,
     }));
 
     res.json({ questions });
   } catch (error) {
-    console.error('❌ Error fetching questions:', error.message);
+    console.error('❌ Error in /api/questions:', error.message);
     console.error(error.stack);
     res.status(500).json({ error: 'Internal server error' });
   }
