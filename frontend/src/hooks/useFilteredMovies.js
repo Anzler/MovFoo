@@ -6,24 +6,27 @@ export function useFilteredMovies(answers) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Skip if no answers yet
+    // Guard: skip if no answers or incomplete values
     if (!answers || Object.keys(answers).length === 0) return;
 
-    // Optional: guard against partially filled answers
-    const hasEmpty = Object.values(answers).some((v) => v === null || v === '');
+    const hasEmpty = Object.values(answers).some(
+      (v) => v === null || v === '' || v === undefined
+    );
     if (hasEmpty) return;
 
     const fetchFilteredMovies = async () => {
       setLoading(true);
       setError(null);
 
-      try {
-        const payload = {
-          answers: Object.entries(answers).map(([field, value]) => ({ field, value })),
-        };
+      const payload = {
+        answers: Object.entries(answers).map(([field, value]) => ({ field, value })),
+      };
 
+      if (import.meta.env.DEV) {
         console.log('[useFilteredMovies] Sending payload:', payload);
+      }
 
+      try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/filter`, {
           method: 'POST',
           headers: {
@@ -33,11 +36,20 @@ export function useFilteredMovies(answers) {
         });
 
         if (!response.ok) {
+          const responseText = await response.text();
+          if (import.meta.env.DEV) {
+            console.error('[useFilteredMovies] Bad response text:', responseText);
+          }
           throw new Error(`Server responded with status ${response.status}`);
         }
 
         const data = await response.json();
-        setMovies(data.results || []);
+
+        if (!Array.isArray(data.results)) {
+          throw new Error('Invalid response format: expected results array');
+        }
+
+        setMovies(data.results);
       } catch (err) {
         console.error('[useFilteredMovies] Error:', err);
         setError('Failed to fetch filtered movies');
