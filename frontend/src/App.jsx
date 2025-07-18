@@ -8,7 +8,7 @@ function App() {
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selected, setSelected] = useState(null);
-  const [isAnswered, setIsAnswered] = useState(false); // 👈 block double-answering
+  const [isAnswered, setIsAnswered] = useState(false);
 
   const currentQuestion = questions?.[currentQuestionIndex];
   const allAnswered = currentQuestionIndex >= questions.length;
@@ -30,8 +30,13 @@ function App() {
       });
       setSelected(null);
       setIsAnswered(false);
-    }, 300); // UX delay
+    }, 300);
   };
+
+  const progressPercent =
+    questions.length > 0
+      ? Math.min((currentQuestionIndex / questions.length) * 100, 100)
+      : 0;
 
   return (
     <div className="app">
@@ -42,6 +47,17 @@ function App() {
 
       {!loading && questions.length > 0 && !allAnswered && currentQuestion && (
         <div className="quiz-box">
+          {/* ✅ Progress bar */}
+          <div className="progress-container" aria-label="Quiz Progress">
+            <div
+              className="progress-bar"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+            <p className="progress-text">
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </p>
+          </div>
+
           <h2>{currentQuestion.question_text}</h2>
           {currentQuestion.choices.map((choice) => (
             <div key={choice.value} className="choice">
