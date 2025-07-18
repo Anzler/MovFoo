@@ -18,7 +18,7 @@ function App() {
     const field = currentQuestion.field;
     const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
-    setSelected(null); // clear for next question
+    setSelected(null); // reset selection for next question
 
     setTimeout(() => {
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -39,7 +39,7 @@ function App() {
             <div key={choice.value} className="choice">
               <label>
                 <input
-                  type={currentQuestion.input_type}
+                  type="radio" // 🔧 Force proper input behavior
                   name={currentQuestion.field}
                   value={choice.value}
                   checked={selected === choice.value}
