@@ -2,64 +2,39 @@
 
 import { useState } from 'react';
 import './App.css';
+import { useQuestions } from './hooks/useQuestions';
 import Results from './components/Results';
 
-const mockQuestions = [
-  {
-    id: 1,
-    field: 'release_date',
-    question_text: 'What decade is your movie from?',
-    input_type: 'radio',
-    choices: [
-      { label: '1980s', value: '1980' },
-      { label: '1990s', value: '1990' },
-      { label: '2000s', value: '2000' },
-      { label: 'Any', value: 'any' }
-    ]
-  },
-  {
-    id: 2,
-    field: 'theme',
-    question_text: 'What primary theme does your movie have?',
-    input_type: 'radio',
-    choices: [
-      { label: 'Adventure', value: 'Adventure' },
-      { label: 'Drama', value: 'Drama' },
-      { label: 'Comedy', value: 'Comedy' },
-      { label: 'Any', value: 'any' }
-    ]
-  }
-];
-
 function App() {
+  const { questions, loading, error } = useQuestions();
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const currentQuestion = mockQuestions[currentQuestionIndex];
-  const allQuestionsAnswered = currentQuestionIndex >= mockQuestions.length;
+  const currentQuestion = questions[currentQuestionIndex];
+  const allAnswered = currentQuestionIndex >= questions.length;
 
   const handleAnswer = (value) => {
-    const newAnswers = { ...answers, [currentQuestion.field]: value };
+    const field = currentQuestion.field;
+    const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
-
-    // Move to next question
-    if (currentQuestionIndex < mockQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
+    setCurrentQuestionIndex((prev) => prev + 1);
   };
 
   return (
     <div className="app">
       <h1>🎬 What should I watch?</h1>
 
-      {!allQuestionsAnswered && (
+      {loading && <p>Loading quiz...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {!loading && !allAnswered && currentQuestion && (
         <div className="quiz-box">
           <h2>{currentQuestion.question_text}</h2>
           {currentQuestion.choices.map((choice) => (
             <div key={choice.value} className="choice">
               <label>
                 <input
-                  type="radio"
+                  type={currentQuestion.input_type}
                   name={currentQuestion.field}
                   value={choice.value}
                   onChange={() => handleAnswer(choice.value)}
@@ -71,8 +46,7 @@ function App() {
         </div>
       )}
 
-      {/* Show results when quiz is finished */}
-      {allQuestionsAnswered && <Results answers={answers} />}
+      {!loading && allAnswered && <Results answers={answers} />}
     </div>
   );
 }
