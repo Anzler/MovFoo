@@ -24,14 +24,10 @@ function App() {
     setAnswers(newAnswers);
 
     setTimeout(() => {
-      setCurrentQuestionIndex((prev) => {
-        const next = prev + 1;
-        return next < questions.length ? next : prev;
-      });
-
+      setCurrentQuestionIndex((prev) => Math.min(prev + 1, questions.length));
       setIsAnswered(false);
 
-      // Reset selected AFTER state settles
+      // Reset selection after advancing
       setTimeout(() => {
         setSelected(null);
       }, 100);
