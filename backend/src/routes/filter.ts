@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient'; // ✅ Corrected path
 
 dotenv.config();
 
