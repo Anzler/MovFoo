@@ -7,6 +7,7 @@ function App() {
   const { questions = [], loading, error } = useQuestions();
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selected, setSelected] = useState(null);
 
   const currentQuestion = questions?.[currentQuestionIndex];
   const allAnswered = currentQuestionIndex >= questions.length;
@@ -17,11 +18,11 @@ function App() {
     const field = currentQuestion.field;
     const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
+    setSelected(null); // clear for next question
 
-    // Automatically go to next question after answer
     setTimeout(() => {
       setCurrentQuestionIndex((prev) => prev + 1);
-    }, 300); // Small delay for UX
+    }, 300); // UX delay
   };
 
   return (
@@ -41,7 +42,11 @@ function App() {
                   type={currentQuestion.input_type}
                   name={currentQuestion.field}
                   value={choice.value}
-                  onChange={() => handleAnswer(choice.value)}
+                  checked={selected === choice.value}
+                  onChange={() => {
+                    setSelected(choice.value);
+                    handleAnswer(choice.value);
+                  }}
                 />
                 {choice.label}
               </label>
