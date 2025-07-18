@@ -1,5 +1,3 @@
-// backend/src/index.ts
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -15,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// ✅ You need these:
 app.use('/api', questionsRoute);
 app.use('/api', filterRoute);
 
