@@ -68,6 +68,41 @@
   color: #444;
 }
 
+/* ---------- Answer Summary ---------- */
+.answers-summary {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.answers-summary ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.answers-summary li {
+  margin-bottom: 0.25rem;
+}
+
+/* ---------- Restart Button ---------- */
+.restart-btn {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.restart-btn:hover {
+  background-color: #0056b3;
+}
+
 /* ---------- Progress Bar ---------- */
 .progress-container {
   width: 100%;
