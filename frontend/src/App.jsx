@@ -8,20 +8,28 @@ function App() {
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false); // 👈 block double-answering
 
   const currentQuestion = questions?.[currentQuestionIndex];
   const allAnswered = currentQuestionIndex >= questions.length;
 
   const handleAnswer = (value) => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || isAnswered) return;
+
+    setIsAnswered(true);
+    setSelected(value);
 
     const field = currentQuestion.field;
     const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
-    setSelected(null); // reset selection for next question
 
     setTimeout(() => {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => {
+        const next = prev + 1;
+        return next < questions.length ? next : prev;
+      });
+      setSelected(null);
+      setIsAnswered(false);
     }, 300); // UX delay
   };
 
@@ -39,14 +47,11 @@ function App() {
             <div key={choice.value} className="choice">
               <label>
                 <input
-                  type="radio" // 🔧 Force proper input behavior
+                  type="radio"
                   name={currentQuestion.field}
                   value={choice.value}
                   checked={selected === choice.value}
-                  onChange={() => {
-                    setSelected(choice.value);
-                    handleAnswer(choice.value);
-                  }}
+                  onChange={() => handleAnswer(choice.value)}
                 />
                 {choice.label}
               </label>
