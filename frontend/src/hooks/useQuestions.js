@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useDecades } from './useDecades';
 
 export function useQuestions() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { decades } = useDecades();
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -25,6 +27,17 @@ export function useQuestions() {
 
         console.log('[useQuestions] Loaded questions:', data.questions);
         setQuestions(data.questions);
+        const loaded = data.questions.map((q) => ({ ...q }));
+
+        if (decades && decades.length > 0) {
+          loaded.forEach((q) => {
+            if (q.field === 'release_date') {
+              q.choices = decades.map((d) => ({ value: String(d), label: `${d}s` }));
+            }
+          });
+        }
+
+        setQuestions(loaded);
       } catch (err) {
         console.error('[useQuestions] Error:', err);
         setError('Failed to load quiz questions.');
@@ -35,7 +48,7 @@ export function useQuestions() {
 
     loadQuestions();
   }, []);
+  }, [decades]);
 
   return { questions, loading, error };
 }
-

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import questionsRoute from './routes/questions';
 import filterRoute from './routes/filter';
 import healthcheck from './routes/healthcheck'; // ✅ new route
+import decadeRoute from './routes/decade';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api', questionsRoute);
 app.use('/api', filterRoute);
 app.use('/api', healthcheck); // ✅ added
+app.use('/api', decadeRoute);
 
 app.get('/', (_req, res) => {
   res.send('MovFoo backend is running!');
@@ -25,4 +27,3 @@ app.get('/', (_req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server is listening on port ${PORT}`);
 });
-

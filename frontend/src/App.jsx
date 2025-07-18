@@ -2,8 +2,18 @@ import { useState } from 'react';
 import './App.css';
 import { useQuestions } from './hooks/useQuestions';
 import Results from './components/Results';
+import Nineties from './components/Nineties';
 
 function App() {
+  const search = new URLSearchParams(window.location.search);
+  const decadeParam = search.get('decade');
+  if (decadeParam === '1990') {
+    return (
+      <div className="app">
+        <Nineties />
+      </div>
+    );
+  }
   const { questions = [], loading, error } = useQuestions();
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -28,64 +38,3 @@ function App() {
         const next = prev + 1;
         return next > questions.length ? questions.length : next;
       });
-
-      setIsAnswered(false);
-
-      setTimeout(() => {
-        setSelected(null);
-      }, 100);
-    }, 300);
-  };
-
-  const progressPercent =
-    questions.length > 0
-      ? Math.min((currentQuestionIndex / questions.length) * 100, 100)
-      : 0;
-
-  return (
-    <div className="app">
-      <h1>🎬 What should I watch?</h1>
-
-      {loading && <p>Loading quiz...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {!loading && questions.length > 0 && !allAnswered && currentQuestion && (
-        <div className="quiz-box">
-          {/* Progress bar */}
-          <div className="progress-container" aria-label="Quiz Progress">
-            <div
-              className="progress-bar"
-              style={{ width: `${progressPercent}%` }}
-            ></div>
-            <p className="progress-text">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </p>
-          </div>
-
-          <h2>{currentQuestion.question_text}</h2>
-          {currentQuestion.choices.map((choice) => (
-            <div key={choice.value} className="choice">
-              <label>
-                <input
-                  type="radio"
-                  name={currentQuestion.field}
-                  value={choice.value}
-                  checked={selected === choice.value}
-                  onChange={() => handleAnswer(choice.value)}
-                />
-                {choice.label || choice.value}
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!loading && questions.length > 0 && allAnswered && (
-        <Results answers={answers} />
-      )}
-    </div>
-  );
-}
-
-export default App;
-
