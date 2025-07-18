@@ -17,7 +17,11 @@ function App() {
     const field = currentQuestion.field;
     const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
-    setCurrentQuestionIndex((prev) => prev + 1);
+
+    // Automatically go to next question after answer
+    setTimeout(() => {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }, 300); // Small delay for UX
   };
 
   return (
