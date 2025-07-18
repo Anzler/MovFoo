@@ -8,16 +8,19 @@ export function useQuestions() {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/questions`);
+        const url = `${import.meta.env.VITE_API_URL}/questions`;
+        console.log('[useQuestions] Fetching from:', url);
+
+        const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error(`API returned status ${response.status}`);
+          throw new Error(`API responded with status ${response.status}`);
         }
 
         const data = await response.json();
 
         if (!data.questions || !Array.isArray(data.questions)) {
-          throw new Error('Response format is invalid');
+          throw new Error('Invalid format: missing or malformed `questions` array');
         }
 
         console.log('[useQuestions] Loaded questions:', data.questions);
