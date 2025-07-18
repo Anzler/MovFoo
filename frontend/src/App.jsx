@@ -28,8 +28,13 @@ function App() {
         const next = prev + 1;
         return next < questions.length ? next : prev;
       });
-      setSelected(null);
+
       setIsAnswered(false);
+
+      // Reset selected AFTER state settles
+      setTimeout(() => {
+        setSelected(null);
+      }, 100);
     }, 300);
   };
 
@@ -47,7 +52,7 @@ function App() {
 
       {!loading && questions.length > 0 && !allAnswered && currentQuestion && (
         <div className="quiz-box">
-          {/* ✅ Progress bar */}
+          {/* Progress bar */}
           <div className="progress-container" aria-label="Quiz Progress">
             <div
               className="progress-bar"
@@ -69,7 +74,7 @@ function App() {
                   checked={selected === choice.value}
                   onChange={() => handleAnswer(choice.value)}
                 />
-                {choice.label}
+                {choice.label || choice.value}
               </label>
             </div>
           ))}
