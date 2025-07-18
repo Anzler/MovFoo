@@ -1,19 +1,19 @@
-// frontend/src/App.jsx
-
 import { useState } from 'react';
 import './App.css';
 import { useQuestions } from './hooks/useQuestions';
 import Results from './components/Results';
 
 function App() {
-  const { questions, loading, error } = useQuestions();
+  const { questions = [], loading, error } = useQuestions();
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions?.[currentQuestionIndex];
   const allAnswered = currentQuestionIndex >= questions.length;
 
   const handleAnswer = (value) => {
+    if (!currentQuestion) return;
+
     const field = currentQuestion.field;
     const newAnswers = { ...answers, [field]: value };
     setAnswers(newAnswers);
@@ -27,7 +27,7 @@ function App() {
       {loading && <p>Loading quiz...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {!loading && !allAnswered && currentQuestion && (
+      {!loading && questions.length > 0 && !allAnswered && currentQuestion && (
         <div className="quiz-box">
           <h2>{currentQuestion.question_text}</h2>
           {currentQuestion.choices.map((choice) => (
@@ -46,7 +46,9 @@ function App() {
         </div>
       )}
 
-      {!loading && allAnswered && <Results answers={answers} />}
+      {!loading && questions.length > 0 && allAnswered && (
+        <Results answers={answers} />
+      )}
     </div>
   );
 }
