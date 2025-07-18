@@ -1,5 +1,33 @@
-/* Add to frontend/src/App.css */
+/* ---------- Base Layout ---------- */
+.app {
+  font-family: 'Segoe UI', sans-serif;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
 
+.quiz-box {
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-top: 2rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  text-align: left;
+}
+
+.choice {
+  margin: 0.5rem 0;
+}
+
+.choice label {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ---------- Results Section ---------- */
 .results {
   margin-top: 2rem;
   text-align: left;
@@ -8,19 +36,77 @@
 .movie-list {
   list-style: none;
   padding: 0;
+  margin-top: 1rem;
 }
 
 .movie-card {
   background: #fff;
-  padding: 1rem;
+  padding: 1.25rem;
   margin-bottom: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .movie-card img {
-  margin-top: 0.5rem;
   border-radius: 0.5rem;
   width: 100px;
+  flex-shrink: 0;
+}
+
+.movie-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.movie-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* ---------- Progress Bar ---------- */
+.progress-container {
+  width: 100%;
+  background: #eee;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  height: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  width: 0;
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-text {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #222;
+  font-weight: 500;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .movie-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .movie-card img {
+    width: 70px;
+  }
+
+  .choice label {
+    font-size: 0.95rem;
+  }
 }
 
