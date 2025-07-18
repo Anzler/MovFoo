@@ -1,5 +1,3 @@
-// frontend/src/hooks/useQuestions.js
-
 import { useEffect, useState } from 'react';
 
 export function useQuestions() {
@@ -11,11 +9,22 @@ export function useQuestions() {
     const loadQuestions = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/questions`);
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+
         const data = await response.json();
+
+        if (!data.questions || !Array.isArray(data.questions)) {
+          throw new Error('Response format is invalid');
+        }
+
+        console.log('[useQuestions] Loaded questions:', data.questions);
         setQuestions(data.questions);
       } catch (err) {
+        console.error('[useQuestions] Error:', err);
         setError('Failed to load quiz questions.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
