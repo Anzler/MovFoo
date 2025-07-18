@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import './App.css';
+import Results from './components/Results';
 
 const mockQuestions = [
   {
@@ -35,38 +36,43 @@ function App() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const currentQuestion = mockQuestions[currentQuestionIndex];
+  const allQuestionsAnswered = currentQuestionIndex >= mockQuestions.length;
 
   const handleAnswer = (value) => {
-    setAnswers({ ...answers, [currentQuestion.field]: value });
+    const newAnswers = { ...answers, [currentQuestion.field]: value };
+    setAnswers(newAnswers);
 
-    // Next question or done
+    // Move to next question
     if (currentQuestionIndex < mockQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      console.log('Final answers:', answers);
-      // Future: call backend with answers
     }
   };
 
   return (
     <div className="app">
       <h1>🎬 What should I watch?</h1>
-      <div className="quiz-box">
-        <h2>{currentQuestion.question_text}</h2>
-        {currentQuestion.choices.map((choice) => (
-          <div key={choice.value} className="choice">
-            <label>
-              <input
-                type="radio"
-                name={currentQuestion.field}
-                value={choice.value}
-                onChange={() => handleAnswer(choice.value)}
-              />
-              {choice.label}
-            </label>
-          </div>
-        ))}
-      </div>
+
+      {!allQuestionsAnswered && (
+        <div className="quiz-box">
+          <h2>{currentQuestion.question_text}</h2>
+          {currentQuestion.choices.map((choice) => (
+            <div key={choice.value} className="choice">
+              <label>
+                <input
+                  type="radio"
+                  name={currentQuestion.field}
+                  value={choice.value}
+                  onChange={() => handleAnswer(choice.value)}
+                />
+                {choice.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Show results when quiz is finished */}
+      {allQuestionsAnswered && <Results answers={answers} />}
     </div>
   );
 }
