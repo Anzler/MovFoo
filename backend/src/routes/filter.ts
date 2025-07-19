@@ -1,23 +1,22 @@
+// backend/src/routes/filter.ts
 import express from 'express';
-import { getFilteredMovies } from '../filters/movieFilter'; // this exists and is working
+import { getFilteredMovies } from '../filters/movieFilter';
 
 const router = express.Router();
 
-// POST /api/filter
 router.post('/filter', async (req, res) => {
   const { answers } = req.body;
 
   if (!Array.isArray(answers)) {
-    return res.status(400).json({ error: 'Invalid input format. Expected answers array.' });
+    return res.status(400).json({ error: 'Invalid format: answers must be an array' });
   }
 
   try {
-    const filtered = await getFilteredMovies(answers);
-    console.log(`[filter] Returned ${filtered.length} movies based on ${answers.length} answers`);
-    res.json({ results: filtered });
+    const results = await getFilteredMovies(answers);
+    return res.json({ results });
   } catch (err) {
-    console.error('[filter] Internal error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[filter] Error:', err);
+    return res.status(500).json({ error: 'Movie filtering failed' });
   }
 });
 

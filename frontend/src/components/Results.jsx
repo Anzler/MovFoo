@@ -18,33 +18,39 @@ function Results({ answers, onRestart }) {
       {!loading && movies.length > 0 && (
         <ul className="movie-list">
           {movies.map((movie) => (
-            <li key={movie.tmdb_id} className="movie-card">
-              <h3>{movie.title}</h3>
-              <p>{movie.overview?.slice(0, 150)}...</p>
-              {movie.poster_path && (
-                <img
-                  src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              )}
+            <li key={movie.tmdb_id || movie.id} className="movie-card">
+              <div className="poster-text-wrapper">
+                <div className="poster">
+                  {movie.poster_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                      alt={movie.title}
+                    />
+                  ) : (
+                    <div className="no-image">No poster available</div>
+                  )}
+                </div>
+                <div className="text">
+                  <h3>{movie.title}</h3>
+                  <p>{movie.overview?.slice(0, 150)}...</p>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
       )}
 
-      {/* Optional: Display quiz answers */}
       <div className="answers-summary">
         <h4>Your Answers</h4>
         <ul>
           {Object.entries(answers).map(([field, value]) => (
             <li key={field}>
-              <strong>{field}</strong>: {value}
+              <strong>{field.replace(/_/g, ' ')}:</strong> {String(value)}
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Start Over */}
       {typeof onRestart === 'function' && (
         <button className="restart-btn" onClick={onRestart}>
           🔁 Start Over

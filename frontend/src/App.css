@@ -17,7 +17,7 @@
 }
 
 .choice {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
 }
 
 .choice label {
@@ -25,6 +25,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.choice input[type='radio'] {
+  transform: scale(1.2);
+  accent-color: #007bff;
 }
 
 /* ---------- Results Section ---------- */
@@ -42,24 +49,34 @@
 .movie-card {
   background: #fff;
   padding: 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.movie-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .movie-card img {
   border-radius: 0.5rem;
   width: 100px;
   flex-shrink: 0;
+  object-fit: cover;
+}
+
+.movie-card .text {
+  flex-grow: 1;
 }
 
 .movie-card h3 {
   margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .movie-card p {
@@ -110,7 +127,6 @@
   border-radius: 8px;
   margin-bottom: 1.5rem;
   height: 16px;
-  position: relative;
   overflow: hidden;
 }
 
@@ -137,11 +153,15 @@
   }
 
   .movie-card img {
-    width: 70px;
+    width: 80px;
   }
 
   .choice label {
     font-size: 0.95rem;
+  }
+
+  .restart-btn {
+    width: 100%;
   }
 }
 
