@@ -1,5 +1,5 @@
 import express from 'express';
-import { getFilteredMovies } from '../filters/movieFilter';
+import { getFilteredMovies } from '../filters/movieFilter'; // this exists and is working
 
 const router = express.Router();
 
@@ -12,11 +12,11 @@ router.post('/filter', async (req, res) => {
   }
 
   try {
-    const movies = await getFilteredMovies(answers);
-    console.log('[filter] Returning', movies.length, 'filtered movie(s)');
-    res.json({ results: movies });
+    const filtered = await getFilteredMovies(answers);
+    console.log(`[filter] Returned ${filtered.length} movies based on ${answers.length} answers`);
+    res.json({ results: filtered });
   } catch (err) {
-    console.error('❌ Error in /filter:', err);
+    console.error('[filter] Internal error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
