@@ -1,4 +1,4 @@
-@@ -24,35 +24,62 @@ router.get('/questions', async (req, res) => {
+router.get('/questions', async (req, res) => {
         field, 
         input_type, 
         "order"
