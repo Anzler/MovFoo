@@ -1,6 +1,23 @@
 router.get('/questions', async (req, res) => {
         field, 
         input_type, 
+import express from 'express';
+import { Pool } from 'pg';
+
+const router = express.Router();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+router.get('/questions', async (_req, res) => {
+  const query = `
+      SELECT
+        id,
+        category,
+        question_text,
+        field,
+        choices,
+        input_type,
         "order"
       FROM questions
       ORDER BY "order" ASC
@@ -50,14 +67,3 @@ router.get('/questions', async (req, res) => {
     };
 
     const filteredQuestions = questions.filter((q) => q.field !== 'release_date');
-    filteredQuestions.unshift(decadeQuestion);
-
-    res.json({ questions: filteredQuestions });
-  } catch (error) {
-    console.error('❌ Error in /api/questions:', error.message);
-    console.error(error.stack);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-export default router;
