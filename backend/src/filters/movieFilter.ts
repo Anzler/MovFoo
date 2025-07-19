@@ -7,20 +7,28 @@ const pool = new Pool({
 });
 
 /**
- * Applies sequential filters to the movies table based on user's answers.
- * @param answers Array of user answers [{ field: 'release_date', value: '1980s' }, ...]
+ * Dynamically filters movies based on user answers.
+ * Supports many permutations like genre, country, runtime, etc.
  */
-export async function getFilteredMovies(answers: { field: string; value: any }[]) {
+export async function getFilteredMovies(
+  answers: { field: string; value: any }[]
+) {
   let baseQuery = `SELECT * FROM movies WHERE true`;
   const queryParams: any[] = [];
 
-  answers.forEach((answer, index) => {
-    const { field, value } = answer;
-
-    // Skip 'any' answers
-    if (value === 'any' || value === null || value === '') return;
+  answers.forEach(({ field, value }) => {
+    if (
+      !field ||
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      value === 'Any' ||
+      value === 'any'
+    )
+      return;
 
     switch (field) {
+      // 1. Release Date by Decade
       case 'release_date': {
         const decadeStart = parseInt(value);
         const decadeEnd = decadeStart + 9;
@@ -29,13 +37,15 @@ export async function getFilteredMovies(answers: { field: string; value: any }[]
         break;
       }
 
+      // 2. Streaming Providers (JSONB)
       case 'watch_providers': {
-        // assumes JSONB array of strings like ["Netflix", "Disney+"]
-        queryParams.push(value);
-        baseQuery += ` AND watch_providers ?| $${queryParams.length}`;
+        // Expects "Netflix", "Disney+" etc
+        queryParams.push(`"${value}"`);
+        baseQuery += ` AND watch_providers::text ILIKE '%' || $${queryParams.length} || '%'`;
         break;
       }
 
+      // 3. JSONB Filters (genres, languages, countries)
       case 'spoken_languages':
       case 'production_countries':
       case 'genres': {
@@ -44,18 +54,19 @@ export async function getFilteredMovies(answers: { field: string; value: any }[]
         break;
       }
 
+      // 4. Runtime Categories
       case 'runtime': {
-        // normalize user-friendly buckets
-        if (value === 'About an hour and a half') {
+        if (value.includes('hour and a half')) {
           baseQuery += ` AND runtime BETWEEN 80 AND 100`;
-        } else if (value === 'About 2 hours') {
+        } else if (value.includes('2 hours')) {
           baseQuery += ` AND runtime BETWEEN 101 AND 130`;
-        } else if (value === 'Epic') {
+        } else if (value.includes('Epic')) {
           baseQuery += ` AND runtime > 130`;
         }
         break;
       }
 
+      // 5. Thematic Matching
       case 'theme':
       case 'sub_theme': {
         queryParams.push(value);
@@ -63,8 +74,8 @@ export async function getFilteredMovies(answers: { field: string; value: any }[]
         break;
       }
 
+      // 6. Revenue Buckets
       case 'revenue': {
-        // Buckets can be defined from your UI options
         if (value === 'Indie') {
           baseQuery += ` AND revenue < 10000000`;
         } else if (value === 'Blockbuster') {
@@ -73,13 +84,17 @@ export async function getFilteredMovies(answers: { field: string; value: any }[]
         break;
       }
 
+      // 7. Fallback match (e.g. is_franchise, status, etc.)
       default: {
-        // fallback: string match
         queryParams.push(value);
         baseQuery += ` AND ${field} = $${queryParams.length}`;
       }
     }
   });
+
+  // Debug log
+  console.log('[getFilteredMovies] SQL:', baseQuery);
+  console.log('[getFilteredMovies] Params:', queryParams);
 
   const result = await pool.query(baseQuery, queryParams);
   return result.rows;
