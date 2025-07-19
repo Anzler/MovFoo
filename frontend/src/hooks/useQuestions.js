@@ -1,4 +1,4 @@
-@@ -5,49 +5,52 @@ export function useQuestions() {
+export function useQuestions() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
