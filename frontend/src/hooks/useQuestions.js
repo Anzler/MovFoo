@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { useDecades } from './useDecades';
+
 export function useQuestions() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +27,6 @@ export function useQuestions() {
 
         if (decades && decades.length > 0) {
           loaded.forEach((q) => {
-            if (q.field === 'release_date') {
             if (
               q.field === 'release_date' &&
               (!q.choices || q.choices.length === 0)
@@ -51,5 +53,4 @@ export function useQuestions() {
 
   return { questions, loading, error };
 }
-
 
